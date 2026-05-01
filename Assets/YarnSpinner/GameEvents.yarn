@@ -1,0 +1,17 @@
+﻿title: Sword
+---
+You got a sword!
+Nice job 
+<<EndSwordDialogue>>
+===
+
+title: Health
+---
+You found a fish!
+Collect these to heal up!
+===
+
+title: Test
+---
+Heyy this is a test
+===
