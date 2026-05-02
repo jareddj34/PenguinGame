@@ -2,13 +2,22 @@
 ---
 You got a sword!
 Nice job 
-<<EndSwordDialogue>>
+<<GiveSword>>
+===
+
+title: Shield
+---
+You got a shield!
+You can now block enemy attacks when raise!
+Press and hold RIGHT MOUSE to raise shields
+<<GiveShield>>
 ===
 
 title: Health
 ---
 You found a fish!
 Collect these to heal up!
+<<FirstHealthPickup>>
 ===
 
 title: Test

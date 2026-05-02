@@ -24,6 +24,8 @@ public class GameStateManager : MonoBehaviour
     private PlayerAttack   playerAttack;
     public Transform PlayerTransform => playerMovement != null ? playerMovement.transform : null;
 
+    public bool IsPlayerInputEnabled { get; private set; } = true;
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -101,15 +103,18 @@ public class GameStateManager : MonoBehaviour
             case GameState.Normal:
                 if (playerMovement != null) playerMovement.enabled = true;
                 if (playerAttack   != null) playerAttack.enabled   = true;
+                IsPlayerInputEnabled = true;
                 break;
             case GameState.Dialogue:
                 if (playerMovement != null) playerMovement.enabled = false;
                 if (playerAttack   != null) playerAttack.enabled   = false;
+                IsPlayerInputEnabled = false;
                 break;
             case GameState.ReceivingItem:
                 // PlayerMovement stays enabled so animation events can still fire
                 if (playerMovement != null) playerMovement.enabled = true;
                 if (playerAttack   != null) playerAttack.enabled   = false;
+                IsPlayerInputEnabled = false;
                 break;
         }
     }

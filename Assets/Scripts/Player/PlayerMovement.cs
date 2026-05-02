@@ -41,11 +41,16 @@ public class PlayerMovement : MonoBehaviour
     // Components
     private CharacterController controller;
     private Animator animator;
+    public bool isKnockedBack;
     // Cached animator parameter IDs (faster than passing strings every frame)
     private static readonly int SpeedHash = Animator.StringToHash("Speed");
     private static readonly int DashHash  = Animator.StringToHash("Dash");
     private static readonly int ItemGotHash    = Animator.StringToHash("ItemGot");
     private static readonly int ItemGotEndHash = Animator.StringToHash("ItemGotEnd");
+    private static readonly int HitFrontHash = Animator.StringToHash("HitFront");
+    private static readonly int HitBackHash  = Animator.StringToHash("HitBack");
+    private static readonly int HitLeftHash  = Animator.StringToHash("HitLeft");
+    private static readonly int HitRightHash = Animator.StringToHash("HitRight");
 
     // State
     private Vector2 moveInput;
@@ -62,6 +67,9 @@ public class PlayerMovement : MonoBehaviour
     // Item got state
     public bool isReceivingItem;
 
+    // Shield
+    private PlayerShield playerShield;
+
     // -------------------------------------------------------------------------
     // Unity Lifecycle
     // -------------------------------------------------------------------------
@@ -70,6 +78,8 @@ public class PlayerMovement : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         animator = GetComponentInChildren<Animator>();
+
+        playerShield = GetComponent<PlayerShield>();
     }
 
     private void OnDisable()
@@ -85,7 +95,7 @@ public class PlayerMovement : MonoBehaviour
             dashCooldownTimer -= Time.deltaTime;
 
         // While dashing, skip normal movement — the coroutine handles it
-        if (isDashing)
+        if (isDashing || isKnockedBack)
             return;
 
         // While attacking, freeze movement but zero out Speed so the walk
@@ -143,7 +153,8 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 moveDirection = new Vector3(moveInput.x, 0f, moveInput.y).normalized;
 
-        Vector3 motion = moveDirection * moveSpeed;
+        Vector3 motion = moveDirection * moveSpeed * (playerShield != null ? playerShield.SpeedMultiplier : 1f);
+
         motion.y = verticalVelocity;
 
         controller.Move(motion * Time.deltaTime);
@@ -183,6 +194,8 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator DashCoroutine()
     {
+        playerShield?.ForceDropShield();
+
         isDashing = true;
         dashCooldownTimer = dashCooldown;
 
@@ -238,5 +251,54 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Knock back
+    // -------------------------------------------------------------------------
+    public void StartKnockback(HitDirection dir, float force)
+    {
+        StartCoroutine(KnockbackCoroutine(dir, force));
+    }
+
+    private IEnumerator KnockbackCoroutine(HitDirection dir, float force)
+    {
+        isKnockedBack = true;
+
+        // Trigger the animation
+        int hash = dir switch
+        {
+            HitDirection.Front => HitFrontHash,
+            HitDirection.Back  => HitBackHash,
+            HitDirection.Left  => HitLeftHash,
+            HitDirection.Right => HitRightHash,
+            _ => HitFrontHash
+        };
+        if (animator != null) animator.SetTrigger(hash);
+
+        // Calculate launch direction (opposite of hit side)
+        Vector3 knockbackDir = dir switch
+        {
+            HitDirection.Front => -transform.forward,
+            HitDirection.Back  =>  transform.forward,
+            HitDirection.Left  =>  transform.right,
+            HitDirection.Right => -transform.right,
+            _ => Vector3.zero
+        };
+
+        float elapsed = 0f;
+        float duration = 0.3f;
+
+        while (elapsed < duration)
+        {
+            float t = 1f - (elapsed / duration); // decelerate
+            Vector3 motion = knockbackDir * force * t;
+            motion.y = verticalVelocity;
+            controller.Move(motion * Time.deltaTime);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        isKnockedBack = false;
+    }
 
 }

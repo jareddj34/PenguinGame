@@ -7,6 +7,7 @@ public class PlayerAttack : MonoBehaviour
 {
 
     private PlayerMovement playerMovement;
+    private PlayerShield playerShield;
 
     [Header("Settings")]
     public float attackCooldown = 0.5f; // Time between attacks
@@ -27,6 +28,7 @@ public class PlayerAttack : MonoBehaviour
     void Start()
     {
         playerMovement = GetComponent<PlayerMovement>();
+        playerShield = GetComponent<PlayerShield>();
         animator = GetComponentInChildren<Animator>();
     }
 
@@ -44,8 +46,16 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
+        if (playerShield != null && playerShield.IsShielding)
+            return;
+
+        if(GameStateManager.Instance.IsPlayerInputEnabled == false)
+            return;
+
         if (playerMovement.isDashing || playerMovement.isReceivingItem)
             return;
+
+        Debug.Log("Click");
 
         // Set the attack state
         playerMovement.isAttacking = true;

@@ -12,15 +12,27 @@ public class EnemyHealth : MonoBehaviour, IHittable
     [SerializeField] float knockbackDuration = 0.25f;
 
     float currentHealth;
+    bool isDying;
     NavMeshAgent agent;
     EnemyAI enemyAI;
     bool isKnockedBack;
+
+    private SkinnedMeshRenderer[] m_Renderers;
+    private Color[] m_OriginalColors;
+    private Coroutine m_FlashCoroutine;
 
     void Awake()
     {
         currentHealth = maxHealth;
         agent = GetComponent<NavMeshAgent>();
         enemyAI = GetComponent<EnemyAI>();
+
+        m_Renderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+        m_OriginalColors = new Color[m_Renderers.Length];
+        for (int i = 0; i < m_Renderers.Length; i++)
+        {
+            m_OriginalColors[i] = m_Renderers[i].material.color;
+        }
     }
 
     /// <summary>
@@ -29,18 +41,24 @@ public class EnemyHealth : MonoBehaviour, IHittable
     /// </summary>
     public void TakeDamage(float amount, Vector3 knockbackDirection)
     {
+        if (isDying) return;
+
         currentHealth -= amount;
         Debug.Log($"[EnemyHealth] {gameObject.name} took {amount} damage. HP: {currentHealth}/{maxHealth}");
 
         // Hook for hit animations/sounds here
         // e.g. animator.SetTrigger("Hit");
 
-        bool isDying = currentHealth <= 0f;
+        FlashRed();
+
+        isDying = currentHealth <= 0f;
 
         if (agent != null && !isKnockedBack)
             StartCoroutine(KnockbackCoroutine(knockbackDirection, isDying));
-        else if (isDying)
+        else if (isDying) {
             Die();
+        }
+
     }
 
     IEnumerator KnockbackCoroutine(Vector3 direction, bool isDying)
@@ -74,10 +92,42 @@ public class EnemyHealth : MonoBehaviour, IHittable
     void Die()
     {
         Debug.Log($"[EnemyHealth] {gameObject.name} has been defeated!");
+        if (m_FlashCoroutine != null)
+            StopCoroutine(m_FlashCoroutine); // cancel the flash so it stays red
+        SetMeshColor(Color.red);             // lock it red on death
 
         // Hook for death effects (particles, sounds) here
         // e.g. Instantiate(deathVFX, transform.position, Quaternion.identity);
 
         Destroy(gameObject, 0.5f);
+    }
+
+
+    // Flash red  stuff
+    public void FlashRed(float duration = 0.5f)
+    {
+        if (m_FlashCoroutine != null)
+            StopCoroutine(m_FlashCoroutine);
+        m_FlashCoroutine = StartCoroutine(FlashRedCoroutine(duration));
+    }
+
+    IEnumerator FlashRedCoroutine(float duration)
+    {
+        SetMeshColor(Color.red);
+        yield return new WaitForSeconds(duration);
+        if (!isDying)
+            ResetMeshColor();
+    }
+
+    private void SetMeshColor(Color color)
+    {
+        foreach (var r in m_Renderers)
+            r.material.color = color;
+    }
+
+    private void ResetMeshColor()
+    {
+        for (int i = 0; i < m_Renderers.Length; i++)
+            m_Renderers[i].material.color = m_OriginalColors[i];
     }
 }

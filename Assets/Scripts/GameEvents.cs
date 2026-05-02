@@ -14,6 +14,7 @@ public class GameEvents : MonoBehaviour
     private PlayerMovement playerMovement;
     private PlayerAttack playerAttack;
     private PlayerHealth playerHealth;
+    private PlayerShield playerShield;
     private DialogueRunner dialogueRunner;
     public GameObject dialogueUI;
 
@@ -31,10 +32,13 @@ public class GameEvents : MonoBehaviour
         playerMovement = FindFirstObjectByType<PlayerMovement>();
         playerAttack = FindFirstObjectByType<PlayerAttack>();
         playerHealth = FindFirstObjectByType<PlayerHealth>();
+        playerShield = FindFirstObjectByType<PlayerShield>();
         itemPopup = FindFirstObjectByType<ItemPopup>();
 
         dialogueRunner = FindFirstObjectByType<DialogueRunner>();
-        dialogueRunner.AddCommandHandler("EndSwordDialogue", EndSwordDialogue);
+        dialogueRunner.AddCommandHandler("GiveSword", GiveSword);
+        dialogueRunner.AddCommandHandler("GiveShield", GiveShield);
+        dialogueRunner.AddCommandHandler("FirstHealthPickup", FirstHealthPickup);
         if (dialogueRunner != null)
             dialogueRunner.onDialogueComplete.AddListener(OnDialogueComplete);
 
@@ -59,12 +63,6 @@ public class GameEvents : MonoBehaviour
         itemPopup.Hide();
     }
 
-    public void EndSwordDialogue()
-    {
-        playerAttack.GotSword();
-
-    }
-
     public void ShowInteractionPrompt(string prompt)
     {
         // UI script will handle this
@@ -76,21 +74,24 @@ public class GameEvents : MonoBehaviour
         OnPromptHide?.Invoke();
     }
 
-    private bool gotFirstHealthPickup = false;
+    public void GiveSword()
+    {
+        playerAttack.GotSword();
+
+    }
+
+    public void GiveShield()
+    {
+        playerShield.GotShield();
+    }
+
     public void FirstHealthPickup()
     {
-        if (gotFirstHealthPickup) return;
-        gotFirstHealthPickup = true;
-        Debug.Log("First health pickup acquired. Player will be healed after dialogue.");
+        playerHealth.Heal(10);
     }
 
     private void OnDialogueComplete()
     {
-        if(gotFirstHealthPickup)
-        {
-            playerHealth.Heal(1);
-            gotFirstHealthPickup = false;
-        }
 
     }
 
