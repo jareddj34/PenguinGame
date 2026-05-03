@@ -5,6 +5,7 @@ public class PlayerAnimationEvents : MonoBehaviour
 
     public PlayerMovement playerMovement;
     public PlayerAttack playerAttack;
+    public PlayerThrow playerThrow;
     public GameObject swordHitbox;
 
     public void OnAttackAnimationComplete()
@@ -24,6 +25,11 @@ public class PlayerAnimationEvents : MonoBehaviour
     public void SlashEffect()
     {
         playerAttack.SpawnSlash();
+    }
+
+    public void ThrowSnowball()
+    {
+        playerThrow.SpawnSnowball();
     }
 
 

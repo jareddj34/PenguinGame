@@ -42,8 +42,14 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] float attackCooldown = 1.5f;
     public GameObject hitbox; // Assign a child GameObject with a trigger collider for the attack hitbox
 
+    // ── Stagger ───────────────────────────────────────────────────────────
+    [Header("Stagger")]
+    [Tooltip("How long the enemy is locked in stagger before recovering.")]
+    [SerializeField] float staggerDuration = 0.8f;
+    public bool doStaggerOnBlock = true; // If true, the enemy enters stagger when the player successfully blocks an attack
+
     // ── State machine ─────────────────────────────────────────────────────
-    enum State { Idle, Wander, Patrol, Chase, Attack }
+    enum State { Idle, Wander, Patrol, Chase, Attack, Stagger }
     State currentState = State.Idle;
 
     // ── Internal refs ─────────────────────────────────────────────────────
@@ -59,7 +65,16 @@ public class EnemyAI : MonoBehaviour
     float patrolWaitTimer = 0f;
     bool  waitingAtPoint  = false;
 
+    // Stagger bookkeeping
+    float staggerTimer = 0f;
+
+    // State references
+    public bool playerVisible { get; private set; }
+
     // ─────────────────────────────────────────────────────────────────────
+
+
+    
 
     void Awake()
     {
@@ -110,7 +125,7 @@ public class EnemyAI : MonoBehaviour
         if (player == null) return;
 
         float distToPlayer  = Vector3.Distance(transform.position, player.position);
-        bool  playerVisible = CanSeePlayer();
+        playerVisible = CanSeePlayer();
 
         // ── State transitions ──────────────────────────────────────────
         switch (currentState)
@@ -157,6 +172,20 @@ public class EnemyAI : MonoBehaviour
                     animator.SetBool("IsAttacking", false);
                 }
                 break;
+
+            case State.Stagger:
+                staggerTimer -= Time.deltaTime;
+                if (staggerTimer <= 0f)
+                {
+                    // Recover: chase if player is still close, otherwise resume normal behaviour
+                    if (playerVisible || distToPlayer <= detectionRadius)
+                        EnterChase();
+                    else if (behaviourMode == BehaviourMode.Patrol)
+                        EnterPatrol();
+                    else
+                        EnterIdle();
+                }
+                break;
         }
 
         // ── State behaviour ────────────────────────────────────────────
@@ -183,6 +212,10 @@ public class EnemyAI : MonoBehaviour
                 FaceTarget(player.position);
                 HandleAttack();
                 animator.SetBool("IsAttacking", true);
+                break;
+
+            case State.Stagger:
+                // Frozen — stagger timer ticks in transitions above
                 break;
         }
 
@@ -258,7 +291,7 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    void EnterChase()
+    public void EnterChase()
     {
         currentState = State.Chase;
         agent.speed  = chaseSpeed;
@@ -269,6 +302,29 @@ public class EnemyAI : MonoBehaviour
         currentState = State.Attack;
         agent.speed  = 0f;
         attackTimer  = 0f; // Attack immediately on entering attack state
+    }
+
+    /// <summary>
+    /// Called by EnemyHitbox when the player successfully blocks an attack.
+    /// Interrupts whatever the enemy is doing and plays the stagger animation.
+    /// </summary>
+    public void EnterStagger()
+    {
+        if (!doStaggerOnBlock) return;
+
+        currentState = State.Stagger;
+        staggerTimer = staggerDuration;
+        agent.speed  = 0f;
+        agent.ResetPath();
+
+        // Disable hitbox immediately so the blocked swing can't still land
+        if (hitbox != null) hitbox.SetActive(false);
+
+        if (animator != null)
+        {
+            animator.SetBool("IsAttacking", false);
+            animator.SetTrigger("Stagger");
+        }
     }
 
     // ── Wander helpers ────────────────────────────────────────────────────
@@ -321,6 +377,19 @@ public class EnemyAI : MonoBehaviour
     public void DeactivateHitbox() 
     {
         hitbox.SetActive(false);
+    }
+
+    // Hit animation
+    public void HitAnimation()
+    {
+        animator.SetTrigger("Hit");
+    }
+
+
+    // Death state
+    public void Die()
+    {
+        animator.SetTrigger("Die");
     }
 
     // ── Utility ───────────────────────────────────────────────────────────

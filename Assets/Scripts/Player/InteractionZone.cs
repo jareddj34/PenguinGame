@@ -8,9 +8,17 @@ public class InteractionZone : MonoBehaviour
 
     public void ForceRefresh() => RefreshCurrent();
 
+    // Re-evaluate every frame so interactables that become available while the
+    // player is already inside the zone are picked up without requiring the
+    // player to leave and re-enter (e.g. the sliding penguin finishing its slide).
+    private void Update() => RefreshCurrent();
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent<IInteractable>(out var interactable) && interactable.CanInteract())
+        // Always track every interactable that enters range — CanInteract() may
+        // return false right now (e.g. penguin is mid-slide) but become true later.
+        // GetClosest() already filters by CanInteract(), so nothing is shown early.
+        if (other.TryGetComponent<IInteractable>(out var interactable))
         {
             _inRange.Add(interactable);
             RefreshCurrent();

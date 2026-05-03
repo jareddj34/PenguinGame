@@ -6,12 +6,12 @@ public class BreakableObject : MonoBehaviour, IHittable
     public int hitsToBreak = 2;
     public GameObject breakEffectPrefab;
 
-    public GameObject objectToSpawn;
+    public GameObject[] objectsToSpawn;
     public bool spawnOnBreak = false;
 
     private int currentHits = 0;
 
-    public void TakeDamage(float damage, Vector3 knockbackDir)
+    public void TakeDamage(float damage, Vector3 knockbackDir, float knockbackForce)
     {
         currentHits++;
 
@@ -30,9 +30,11 @@ public class BreakableObject : MonoBehaviour, IHittable
             Destroy(effect, 2f); // Destroy the effect after 2 seconds
         }
 
-        if (objectToSpawn != null && spawnOnBreak)
+        if (objectsToSpawn != null && spawnOnBreak)
         {
-            Instantiate(objectToSpawn, transform.position, transform.rotation);
+            GameObject selectedObject = objectsToSpawn[Random.Range(0, objectsToSpawn.Length)];
+
+            Instantiate(selectedObject, transform.position, transform.rotation);
         }
 
         Destroy(gameObject);

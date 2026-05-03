@@ -21,6 +21,14 @@ public class EnemyHitbox : MonoBehaviour
     // Prevents hitting the player more than once per swing activation
     bool hitRegistered;
 
+    // Cached reference to the parent EnemyAI for stagger callbacks
+    EnemyAI enemyAI;
+
+    void Awake()
+    {
+        enemyAI = GetComponentInParent<EnemyAI>();
+    }
+
     // ── Lifecycle ─────────────────────────────────────────────────────────
 
     void OnEnable()
@@ -37,10 +45,11 @@ public class EnemyHitbox : MonoBehaviour
         PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
         if (playerHealth != null)
         {
-            // playerHealth.TakeDamage(damage);
-            playerHealth.TakeHit(transform.parent.transform.position, damage, knockBackForce);  // Knockback + hit reaction
-            
-            hitRegistered = true;  // Only one hit per swing
+            bool blocked = playerHealth.TakeHit(transform.parent.transform.position, damage, knockBackForce);
+            hitRegistered = true; // Only one hit per swing
+
+            if (blocked)
+                enemyAI?.EnterStagger();
         }
     }
 

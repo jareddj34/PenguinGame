@@ -1,7 +1,7 @@
 ﻿title: Sword
 ---
 You got a sword!
-Nice job 
+Click LEFT MOUSE to swing it!
 <<GiveSword>>
 ===
 
@@ -20,7 +20,9 @@ Collect these to heal up!
 <<FirstHealthPickup>>
 ===
 
-title: Test
+title: Snowball
 ---
-Heyy this is a test
+You found some snowballs!
+Click F to throw them!
+<<FirstSnowballPickup>>
 ===

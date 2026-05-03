@@ -8,7 +8,7 @@ public class EnemyHealth : MonoBehaviour, IHittable
     [SerializeField] float maxHealth = 50f;
 
     [Header("Knockback")]
-    [SerializeField] float knockbackForce = 6f;
+    // [SerializeField] float knockbackForce = 6f;
     [SerializeField] float knockbackDuration = 0.25f;
 
     float currentHealth;
@@ -39,36 +39,50 @@ public class EnemyHealth : MonoBehaviour, IHittable
     /// Deal damage and apply knockback in the given direction.
     /// knockbackDirection should be a normalized world-space vector (attacker -> enemy).
     /// </summary>
-    public void TakeDamage(float amount, Vector3 knockbackDirection)
+    public void TakeDamage(float amount, Vector3 knockbackDirection, float knockbackForce)
     {
         if (isDying) return;
 
         currentHealth -= amount;
-        Debug.Log($"[EnemyHealth] {gameObject.name} took {amount} damage. HP: {currentHealth}/{maxHealth}");
+
+        Debug.Log("Lost " + amount + " health");
 
         // Hook for hit animations/sounds here
         // e.g. animator.SetTrigger("Hit");
+
+        if(!enemyAI.playerVisible)
+        {
+            enemyAI.EnterChase();
+        }
 
         FlashRed();
 
         isDying = currentHealth <= 0f;
 
-        if (agent != null && !isKnockedBack)
-            StartCoroutine(KnockbackCoroutine(knockbackDirection, isDying));
-        else if (isDying) {
+        if(!isDying)
+        {
+            enemyAI.HitAnimation();
+        }
+
+        if (agent != null && !isKnockedBack) {
+            StartCoroutine(KnockbackCoroutine(knockbackDirection, knockbackForce, isDying));
+
+        } else if (isDying) {
             Die();
         }
 
     }
 
-    IEnumerator KnockbackCoroutine(Vector3 direction, bool isDying)
+    IEnumerator KnockbackCoroutine(Vector3 direction, float knockbackForce, bool isDying)
     {
         isKnockedBack = true;
         agent.ResetPath();
 
         // If dying, shut down the AI so it doesn't resume pathfinding mid-knockback
-        if (isDying && enemyAI != null)
+        if (isDying && enemyAI != null) {
+            enemyAI.Die();
             enemyAI.enabled = false;
+        }
 
         float elapsed = 0f;
         while (elapsed < knockbackDuration)

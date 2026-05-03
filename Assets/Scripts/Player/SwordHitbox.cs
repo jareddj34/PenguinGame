@@ -4,6 +4,7 @@ using UnityEngine;
 public class SwordHitbox : MonoBehaviour
 {
     [SerializeField] private float damage = 10f;
+    public float knockbackForce = 6f;
 
     public GameObject impactEffectPrefab;
 
@@ -44,6 +45,6 @@ public class SwordHitbox : MonoBehaviour
         Vector3 knockbackDir = (other.transform.position - transform.parent.position).normalized;
         knockbackDir.y = 0f; // Keep knockback flat on the ground plane
 
-        hittable.TakeDamage(damage, knockbackDir);
+        hittable.TakeDamage(damage, knockbackDir, knockbackForce);
     }
 }

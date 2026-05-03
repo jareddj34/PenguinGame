@@ -16,6 +16,7 @@ public class PlayerAttack : MonoBehaviour
     [Header("Sword refs")]
     public bool hasSword = false;
     public GameObject swordObject;
+    public GameObject swordHitbox;
 
     [Header("Slash")]
     public GameObject slashEffectPrefab;
@@ -55,7 +56,7 @@ public class PlayerAttack : MonoBehaviour
         if (playerMovement.isDashing || playerMovement.isReceivingItem)
             return;
 
-        Debug.Log("Click");
+        StartCoroutine(SetPlayerAttackingFalseAfterDelay(attackCooldown));
 
         // Set the attack state
         playerMovement.isAttacking = true;
@@ -65,6 +66,13 @@ public class PlayerAttack : MonoBehaviour
         if (animator != null)
             animator.SetTrigger(AttackHash);
 
+    }
+
+    IEnumerator SetPlayerAttackingFalseAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        playerMovement.isAttacking = false;
+        swordHitbox.SetActive(false);
     }
 
     public void SpawnSlash()

@@ -7,6 +7,8 @@ public class PlayerShield : MonoBehaviour
     [Tooltip("The player must have picked up a shield before they can use it.")]
     public bool hasShield = false;
     public GameObject shieldObject;
+    public GameObject shieldBlockEffectPrefab;
+    public Transform shieldBlockEffectSpawnPoint;
 
     [Header("Settings")]
     [Tooltip("Speed multiplier applied while the shield is raised (e.g. 0.6 = 60% of normal speed).")]
@@ -122,6 +124,16 @@ public class PlayerShield : MonoBehaviour
         Debug.Log("Trying to block hit from direction: " + hitDir);
         if (!IsShielding)
             return false;
+
+        if (hitDir == HitDirection.Front)
+        {
+            // Spawn block effect at player's position
+            if (shieldBlockEffectPrefab != null)
+            {
+                GameObject blockEffect = Instantiate(shieldBlockEffectPrefab, shieldBlockEffectSpawnPoint.position, Quaternion.identity);
+                Destroy(blockEffect, 1f); // Clean up the effect after 1 second
+            }
+        }
 
         // Shield faces forward — it can only block hits coming from the front
         return hitDir == HitDirection.Front;

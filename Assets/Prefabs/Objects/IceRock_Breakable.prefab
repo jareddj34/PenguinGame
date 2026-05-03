@@ -127,5 +127,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BreakableObject
   hitsToBreak: 1
   breakEffectPrefab: {fileID: 4934492731710134950, guid: 6b29de59ad55e3441862e6dcd997ccaf, type: 3}
-  objectToSpawn: {fileID: 1869526811495230124, guid: b868be309d279ea438cf4796b166dd42, type: 3}
+  objectsToSpawn:
+  - {fileID: 7903047720310797813, guid: 75dc2e47d9ba2c143b3a15aea6628133, type: 3}
+  - {fileID: 1869526811495230124, guid: b868be309d279ea438cf4796b166dd42, type: 3}
   spawnOnBreak: 1

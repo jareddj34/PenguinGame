@@ -40,18 +40,23 @@ public class PlayerHealth : MonoBehaviour
     }
 
     // Knockback
-    public void TakeHit(Vector3 attackerPosition, int damage, float force)
+    /// <summary>
+    /// Returns true if the hit was successfully blocked by the shield,
+    /// false if damage and knockback were applied normally.
+    /// </summary>
+    public bool TakeHit(Vector3 attackerPosition, int damage, float force)
     {
         HitDirection dir = GetHitDirection(attackerPosition);
 
         if (playerShield != null && playerShield.TryBlock(dir))
         {
             Debug.Log("Hit blocked by shield!");
-            return; // no damage, no knockback
+            return true; // blocked — caller can react (e.g. enemy stagger)
         }
 
         TakeDamage(damage);
         playerMovement?.StartKnockback(dir, force);
+        return false; // not blocked
     }
 
     private HitDirection GetHitDirection(Vector3 attackerPosition)
