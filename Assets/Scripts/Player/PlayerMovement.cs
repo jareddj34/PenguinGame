@@ -2,18 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Top-down 3D player movement controller with dash and animation.
-/// Works with a PlayerInput component (Behavior: Send Messages) and a CharacterController.
-///
-/// Setup:
-///   1. Add this script to your player GameObject (alongside the PlayerInput component).
-///   2. Make sure PlayerInput > Behavior is set to "Send Messages".
-///   3. Unity will auto-add a CharacterController — size the capsule to fit your mesh.
-///   4. Animator setup: add a float parameter named "Speed". Use it to drive
-///      Idle -> Walk (Speed > 0) and Walk -> Idle (Speed < 0.01) transitions.
-///      Uncheck "Has Exit Time" on both transitions for instant response.
-/// </summary>
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
@@ -37,6 +25,13 @@ public class PlayerMovement : MonoBehaviour
 
     [Tooltip("How long before the player can dash again in seconds. Set to 0 to disable cooldown.")]
     [SerializeField] private float dashCooldown = 1f;
+
+    [Header("Ice Sliding")]
+    [Tooltip("How fast the player slides across ice.")]
+    [SerializeField] private float iceSlideSpeed = 7f;
+    public bool isSliding;
+    private int iceZoneCount;
+    private bool isOnIce => iceZoneCount > 0;
 
     // Components
     private CharacterController controller;
@@ -67,6 +62,9 @@ public class PlayerMovement : MonoBehaviour
     // Item got state
     public bool isReceivingItem;
 
+    // Freeze state
+    public bool isFrozen;
+
     // Shield
     private PlayerShield playerShield;
 
@@ -95,16 +93,37 @@ public class PlayerMovement : MonoBehaviour
             dashCooldownTimer -= Time.deltaTime;
 
         // While dashing, skip normal movement — the coroutine handles it
-        if (isDashing || isKnockedBack)
+        if (isDashing || isKnockedBack || isSliding)
             return;
 
-        // While attacking, freeze movement but zero out Speed so the walk
-        // animation doesn't keep playing and interfere with the attack state
-        if (isAttacking || isReceivingItem)
+        // Freeze the player during attack or receiving item or freeze
+        if (isAttacking || isReceivingItem || isFrozen)
         {
             if (animator != null)
                 animator.SetFloat(SpeedHash, 0f);
             return;
+        }
+
+        // Ice sliding: while on ice, override normal movement
+        if (isOnIce)
+        {
+            if (!isSliding)
+            {
+                Vector3 iceInput = new Vector3(moveInput.x, 0f, moveInput.y);
+                if (iceInput.sqrMagnitude > 0.01f)
+                {
+                    // Player pressed a direction — start sliding
+                    StartCoroutine(IceSlideCoroutine(SnapToCardinal(iceInput)));
+                }
+                else
+                {
+                    // Standing still on ice: apply gravity but no movement
+                    ApplyGravity();
+                    controller.Move(new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
+                    if (animator != null) animator.SetFloat(SpeedHash, 0f);
+                }
+            }
+            return; // coroutine handles everything while isSliding is true
         }
 
         ApplyGravity();
@@ -127,7 +146,7 @@ public class PlayerMovement : MonoBehaviour
         if (!value.isPressed)
             return;
 
-        if (isDashing || dashCooldownTimer > 0f)
+        if (isDashing || dashCooldownTimer > 0f || isSliding)
             return;
 
         StartCoroutine(DashCoroutine());
@@ -300,5 +319,69 @@ public class PlayerMovement : MonoBehaviour
 
         isKnockedBack = false;
     }
+
+    // -------------------------------------------------------------------------
+    // Ice Sliding
+    // -------------------------------------------------------------------------
+
+    /// <summary>Called by IceZone when the player enters the trigger.</summary>
+    public void EnterIce()
+    {
+        iceZoneCount++;
+
+        Vector3 input = new Vector3(moveInput.x, 0f, moveInput.y);
+        if (!isSliding && input.sqrMagnitude > 0.01f)
+            StartCoroutine(IceSlideCoroutine(SnapToCardinal(input)));
+    }
+
+    public void ExitIce()
+    {
+        iceZoneCount = Mathf.Max(0, iceZoneCount - 1);
+    }
+
+    private IEnumerator IceSlideCoroutine(Vector3 direction)
+    {
+        isSliding = true;
+
+        // Snap rotation to face the slide direction instantly.
+        transform.rotation = Quaternion.LookRotation(direction);
+
+        if (animator != null)
+            animator.SetFloat(SpeedHash, 1f);
+
+        while (true)
+        {
+            // Slid off the edge of the ice zone — stop.
+            if (!isOnIce) break;
+
+            ApplyGravity();
+
+            Vector3 motion = direction * iceSlideSpeed;
+            motion.y = verticalVelocity;
+
+            CollisionFlags flags = controller.Move(motion * Time.deltaTime);
+
+            // Hit a wall, rock, or any solid collider on the sides — stop.
+            if ((flags & CollisionFlags.Sides) != 0) break;
+
+            yield return null;
+        }
+
+        isSliding = false;
+
+        if (animator != null)
+            animator.SetFloat(SpeedHash, 0f);
+    }
+
+    /// <summary>Snaps a direction to the nearest of the four cardinal axes (N/S/E/W).</summary>
+    private static Vector3 SnapToCardinal(Vector3 dir)
+    {
+        dir.y = 0f;
+        if (Mathf.Abs(dir.x) >= Mathf.Abs(dir.z))
+            return new Vector3(Mathf.Sign(dir.x), 0f, 0f);
+        else
+            return new Vector3(0f, 0f, Mathf.Sign(dir.z));
+    }
+
 
 }

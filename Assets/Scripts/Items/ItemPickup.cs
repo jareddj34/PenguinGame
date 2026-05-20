@@ -10,6 +10,8 @@ public class ItemPickup : WorldItem
         GameEvents.Instance.ItemPickedUp(itemData);
 
         OnItemPickupEvent?.Invoke();
+
+        
     }
 
 }

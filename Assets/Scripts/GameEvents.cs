@@ -77,10 +77,19 @@ public class GameEvents : MonoBehaviour
         OnPromptHide?.Invoke();
     }
 
+    public void FreezePlayer()
+    {
+        playerMovement.isFrozen = true;
+    }
+
+    public void UnfreezePlayer()
+    {
+        playerMovement.isFrozen = false;
+    }
+
     public void GiveSword()
     {
         playerAttack.GotSword();
-
     }
 
     public void GiveShield()
