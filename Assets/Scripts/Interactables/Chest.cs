@@ -6,9 +6,25 @@ public class Chest : InteractableBase
 
     public ItemData itemData;
     public override string InteractionPrompt => "Open [E]";
-    
+
     private Animator animator;
     private bool opened = false;
+
+    [SerializeField] private StatefulObject stateful;
+
+    private void Start()
+    {
+        animator = GetComponent<Animator>();
+
+        // If we've been to this scene before and already opened this chest,
+        // snap it straight to the open visual without running the interaction flow.
+        if (stateful != null && stateful.IsDone)
+        {
+            opened = true;
+            animator.Play("OpenIdle", 0, 1f); // jump to the last frame of the Open animation
+            enabled = false;
+        }
+    }
 
     public override void Interact()
     {
@@ -18,6 +34,8 @@ public class Chest : InteractableBase
 
             animator = GetComponent<Animator>();
             animator.SetTrigger("Open");
+
+            FreezePlayer();
 
             base.OnStopHover();
 
@@ -31,10 +49,11 @@ public class Chest : InteractableBase
 
     public void OnOpened()
     {
+        stateful?.MarkDone(); // save "this chest is open" to WorldStateManager
         GameEvents.Instance.ItemPickedUp(itemData);
         GameEvents.Instance.UnfreezePlayer();
         GetComponent<Chest>().enabled = false;
-        
+
     }
 
     public override void OnHover()

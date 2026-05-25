@@ -72,7 +72,10 @@ public class EnemyAI : MonoBehaviour
     public bool playerVisible { get; private set; }
 
     // ─────────────────────────────────────────────────────────────────────
-
+    // Sounds
+    public AudioSource audioSource;
+    public AudioClip roarSound;
+    public AudioClip attackSound;
 
     
 
@@ -98,6 +101,8 @@ public class EnemyAI : MonoBehaviour
         // Kick off patrol immediately if that mode is selected
         if (behaviourMode == BehaviourMode.Patrol && patrolPoints != null && patrolPoints.Length > 0)
             EnterPatrol();
+
+        hitbox.GetComponent<EnemyHitbox>().damage = attackDamage;
     }
 
     // ── Detection — forward half-sphere ───────────────────────────────────
@@ -295,6 +300,11 @@ public class EnemyAI : MonoBehaviour
     {
         currentState = State.Chase;
         agent.speed  = chaseSpeed;
+        if (audioSource != null && roarSound != null)
+        {
+            audioSource.pitch = Random.Range(0.95f, 1.05f);
+            audioSource.PlayOneShot(roarSound);
+        }
     }
 
     void EnterAttack()
@@ -364,7 +374,8 @@ public class EnemyAI : MonoBehaviour
         // PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
         // if (playerHealth != null)
         //     playerHealth.TakeDamage(attackDamage);
-
+        audioSource.pitch = Random.Range(0.95f, 1.05f); // Add some random pitch variation
+        audioSource.PlayOneShot(attackSound);
         if (animator != null)
             animator.SetTrigger("Attack");
     }

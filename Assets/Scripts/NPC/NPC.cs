@@ -18,9 +18,11 @@ public class NPC : InteractableBase
     public Animator animator;
     private Quaternion originalRotation;
 
-    // -------------------------------------------------------------------------
-    // Unity Lifecycle
-    // -------------------------------------------------------------------------
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip[] honkClips;
+    private AudioClip chosenHonk;
+
 
     private void Start()
     {
@@ -30,6 +32,8 @@ public class NPC : InteractableBase
             dialogueRunner.onDialogueComplete.AddListener(OnDialogueComplete);
 
         originalRotation = transform.rotation;
+
+        chosenHonk = honkClips[Random.Range(0, honkClips.Length)];
     }
 
     private void OnDestroy()
@@ -37,10 +41,6 @@ public class NPC : InteractableBase
         if (dialogueRunner != null)
             dialogueRunner.onDialogueComplete.RemoveListener(OnDialogueComplete);
     }
-
-    // -------------------------------------------------------------------------
-    // IInteractable — called by InteractionZone / InteractionManager
-    // -------------------------------------------------------------------------
 
     /// <summary>Prevent interaction if dialogue is already running.</summary>
     public override bool CanInteract()
@@ -56,6 +56,9 @@ public class NPC : InteractableBase
         if (!CanInteract()) return;
 
         animator.SetBool("Talking", true);
+
+        audioSource.clip = chosenHonk;
+        audioSource.Play();
 
         GameStateManager.Instance.EnterDialogue();
         GameStateManager.Instance.FacePlayer(transform);

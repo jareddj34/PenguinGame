@@ -2,12 +2,30 @@ using UnityEngine;
 
 public abstract class Collectable : MonoBehaviour
 {
+
+    [SerializeField] private ItemData firstPickupItem;
+    [SerializeField] private string firstPickupFlagID;
+
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Player"))
-            return;
-        
-        OnCollect(other.gameObject);
+        if (!other.CompareTag("Player")) return;
+
+        bool isFirstTime =
+            firstPickupItem != null &&
+            !string.IsNullOrEmpty(firstPickupFlagID) &&
+            WorldStateManager.Instance != null &&
+            !WorldStateManager.Instance.GetGlobalFlag(firstPickupFlagID);
+
+        if (isFirstTime)
+        {
+            WorldStateManager.Instance.SetGlobalFlag(firstPickupFlagID, true);
+            GameEvents.Instance.ItemPickedUp(firstPickupItem);
+        }
+        else
+        {
+            OnCollect(other.gameObject);
+        }
+
         Destroy(gameObject);
     }
 

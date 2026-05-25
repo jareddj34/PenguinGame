@@ -239,10 +239,10 @@ AnimatorStateMachine:
     m_Position: {x: 340, y: -20, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2355163205474068282}
-    m_Position: {x: 250, y: -90, z: 0}
+    m_Position: {x: 280, y: -140, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -1464484900558023407}
-    m_Position: {x: 490, y: -90, z: 0}
+    m_Position: {x: 490, y: -140, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4388968670725836001}
     m_Position: {x: 420, y: 190, z: 0}
@@ -254,7 +254,7 @@ AnimatorStateMachine:
     m_Position: {x: 80, y: -140, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 7580999705815106006}
-    m_Position: {x: 590, y: -20, z: 0}
+    m_Position: {x: 600, y: -20, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5981151792017275429}
     m_Position: {x: -310, y: 30, z: 0}
@@ -269,10 +269,10 @@ AnimatorStateMachine:
     m_Position: {x: -310, y: 180, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1765655352658439903}
-    m_Position: {x: 800, y: -130, z: 0}
+    m_Position: {x: 880, y: -90, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4092784924851429032}
-    m_Position: {x: 880, y: -20, z: 0}
+    m_Position: {x: 760, y: -160, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -8046573357290301705}
     m_Position: {x: 410, y: 260, z: 0}
@@ -401,7 +401,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Armature_Dash2
+  m_Name: Dash2
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -463,9 +463,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
+  m_TransitionDuration: 0.04108703
   m_TransitionOffset: 0
-  m_ExitTime: 0.85
+  m_ExitTime: 0.9753478
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -478,7 +478,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Armature_Dash3
+  m_Name: Dash3
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -528,7 +528,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Armature_Idle
+  m_Name: Idle
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -1054,9 +1054,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
+  m_TransitionDuration: 0.08108693
   m_TransitionOffset: 0
-  m_ExitTime: 0.40000004
+  m_ExitTime: 0.8053913
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -1171,7 +1171,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Walk_001
+  m_Name: Walk
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -1187,7 +1187,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 3c36736e0efc4eb4a9e0407fe69bfe2d, type: 2}
+  m_Motion: {fileID: 7400000, guid: 4d6679df7b63bcd469d5b06abac3dfdb, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

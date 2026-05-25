@@ -13,7 +13,8 @@ public class SwordHitbox : MonoBehaviour
     // inside the collider across multiple frames
     private readonly HashSet<IHittable> hitThisSwing = new HashSet<IHittable>();
 
-    
+    [Header("Sound")]
+    public PlayerSound playerSound;
 
     private void OnEnable()
     {
@@ -32,6 +33,17 @@ public class SwordHitbox : MonoBehaviour
             return;
 
         hitThisSwing.Add(hittable);
+
+        // For sound
+        if(other.CompareTag("IceRock"))
+        {
+            playerSound.PlayHardHit();
+        }
+
+        else if(other.CompareTag("Enemy"))
+        {
+            playerSound.PlayFleshHit();
+        }
 
         // Spawn impact effect at the collision point
         if (impactEffectPrefab != null)

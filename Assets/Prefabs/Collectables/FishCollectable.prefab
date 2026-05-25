@@ -67,6 +67,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 597fb9a8bd8c3db40aa44bcd606edfd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthPickup
+  firstPickupItem: {fileID: 11400000, guid: c4410df4f1e5c234180c0b493ebc2493, type: 2}
+  firstPickupFlagID: first_health_pickup
   healAmount: 1
 --- !u!1001 &224960300227115843
 PrefabInstance:

@@ -9,9 +9,13 @@ public class PlayerAttack : MonoBehaviour
     private PlayerMovement playerMovement;
     private PlayerShield playerShield;
 
+    [Header("Debug")]
+    public bool giveSwordOnStart = false;
+
     [Header("Settings")]
     public float attackCooldown = 0.5f; // Time between attacks
     private float nextAttackTime = 0f; // When the player can attack again
+    private Coroutine attackCoroutine;
 
     [Header("Sword refs")]
     public bool hasSword = false;
@@ -31,6 +35,11 @@ public class PlayerAttack : MonoBehaviour
         playerMovement = GetComponent<PlayerMovement>();
         playerShield = GetComponent<PlayerShield>();
         animator = GetComponentInChildren<Animator>();
+
+        if (giveSwordOnStart)
+        {
+            GotSword();
+        }
     }
 
     private void OnAttack(InputValue value)
@@ -56,7 +65,12 @@ public class PlayerAttack : MonoBehaviour
         if (playerMovement.isDashing || playerMovement.isReceivingItem)
             return;
 
-        StartCoroutine(SetPlayerAttackingFalseAfterDelay(attackCooldown));
+        // Cancel any leftover coroutine from a previous attack
+        if (attackCoroutine != null)
+            StopCoroutine(attackCoroutine);
+
+        attackCoroutine = StartCoroutine(SetPlayerAttackingFalseAfterDelay(attackCooldown));
+
 
         // Set the attack state
         playerMovement.isAttacking = true;
@@ -97,4 +111,5 @@ public class PlayerAttack : MonoBehaviour
         if (swordObject != null)
             swordObject.SetActive(true);
     }
+
 }

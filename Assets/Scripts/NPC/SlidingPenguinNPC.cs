@@ -2,23 +2,8 @@ using UnityEngine;
 using Yarn.Unity;
 using System.Collections;
 
-/// <summary>
-/// A special penguin NPC that continuously belly-slides between two waypoints.
-///
-/// Sequence per leg:
-///   SlideStart anim  →  move to waypoint  →  SlideEnd anim
-///   →  idle pause (INTERACTABLE)  →  wait for dialogue to finish
-///   →  rotate to face next waypoint (INTERACTABLE)  →  wait for dialogue to finish
-///   →  repeat
-///
-/// The player can interact during the idle pause and rotation.
-/// After dialogue ends, the penguin resumes exactly where the coroutine left off.
-/// </summary>
 public class SlidingPenguinNPC : InteractableBase
 {
-    // -------------------------------------------------------------------------
-    // Inspector Fields
-    // -------------------------------------------------------------------------
 
     [Header("Dialogue")]
     [Tooltip("The scene's Yarn Spinner DialogueRunner.")]
@@ -58,9 +43,10 @@ public class SlidingPenguinNPC : InteractableBase
     [Header("Animation")]
     public Animator animator;
 
-    // -------------------------------------------------------------------------
-    // Runtime State
-    // -------------------------------------------------------------------------
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip[] honkClips;
+    private AudioClip chosenHonk;
 
     /// <summary>True while a Yarn dialogue is open.</summary>
     private bool _isInDialogue;
@@ -73,9 +59,6 @@ public class SlidingPenguinNPC : InteractableBase
 
     public override string InteractionPrompt => "Talk [E]";
 
-    // -------------------------------------------------------------------------
-    // Unity Lifecycle
-    // -------------------------------------------------------------------------
 
     private void Start()
     {
@@ -96,6 +79,8 @@ public class SlidingPenguinNPC : InteractableBase
 
         _nextTargetIndex = 1; // first leg goes toward pointB
         StartCoroutine(SlideLoop());
+
+        chosenHonk = honkClips[Random.Range(0, honkClips.Length)];
     }
 
     private void OnDestroy()
@@ -103,10 +88,6 @@ public class SlidingPenguinNPC : InteractableBase
         if (dialogueRunner != null)
             dialogueRunner.onDialogueComplete.RemoveListener(OnDialogueComplete);
     }
-
-    // -------------------------------------------------------------------------
-    // IInteractable
-    // -------------------------------------------------------------------------
 
     public override bool CanInteract()
     {
@@ -122,6 +103,9 @@ public class SlidingPenguinNPC : InteractableBase
 
         _isInDialogue = true;
         animator.SetBool("Talking", true);
+
+        audioSource.clip = chosenHonk;
+        audioSource.Play();
 
         GameStateManager.Instance.EnterDialogue();
         GameStateManager.Instance.FacePlayer(transform);

@@ -65,6 +65,9 @@ public class PlayerMovement : MonoBehaviour
     // Freeze state
     public bool isFrozen;
 
+    // Invulnerability state (e.g. after taking damage)
+    public bool isInvulnerable;
+
     // Shield
     private PlayerShield playerShield;
 
@@ -84,6 +87,11 @@ public class PlayerMovement : MonoBehaviour
     {
         // Prevents the player drifting when control is restored after dialogue
         moveInput = Vector2.zero;
+
+        // Reset walk animation so it doesn't freeze on the last frame when
+        // the component is disabled (e.g. during NPC dialogue).
+        if (animator != null)
+            animator.SetFloat(SpeedHash, 0f);
     }
 
     private void Update()
@@ -188,11 +196,16 @@ public class PlayerMovement : MonoBehaviour
 
         Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
 
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation,
-            targetRotation,
-            rotationSpeed * Time.deltaTime
-        );
+
+        // For smooth rotation
+        // transform.rotation = Quaternion.RotateTowards(
+        //     transform.rotation,
+        //     targetRotation,
+        //     rotationSpeed * Time.deltaTime
+        // );
+
+        // Instant rotation
+        transform.rotation = targetRotation;
     }
 
     // -------------------------------------------------------------------------
@@ -275,6 +288,7 @@ public class PlayerMovement : MonoBehaviour
     // -------------------------------------------------------------------------
     public void StartKnockback(HitDirection dir, float force)
     {
+        if (isKnockedBack || isInvulnerable) return;
         StartCoroutine(KnockbackCoroutine(dir, force));
     }
 
@@ -383,5 +397,37 @@ public class PlayerMovement : MonoBehaviour
             return new Vector3(0f, 0f, Mathf.Sign(dir.z));
     }
 
+
+    // -------------------------------------------------------------------------
+    // Spike Pushing
+    // -------------------------------------------------------------------------
+    [Header("Pushing")]
+    [SerializeField] private float pushForce = 5f;
+    [SerializeField] private float spikePushForce = 12f;
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // --- Ice spike interaction ---
+        IceSpike spike = hit.collider.GetComponent<IceSpike>();
+        
+        if (spike != null)
+        {
+            bool shieldActive = playerShield != null && playerShield.IsShielding;
+            if (shieldActive)
+                spike.PushThisFrame(transform.forward);
+            else
+                spike.DamagePlayer(this);
+            return;
+        }
+
+        // --- Generic rigidbody pushing (for your test cube etc.) ---
+        Rigidbody rb = hit.collider.attachedRigidbody;
+        Vector3 pushDir = new Vector3(hit.moveDirection.x, 0f, hit.moveDirection.z);
+        if (rb == null || rb.isKinematic) return;
+        if (hit.moveDirection.y < -0.3f) return;
+
+        
+        rb.AddForce(pushDir * pushForce, ForceMode.Force);
+    }
 
 }

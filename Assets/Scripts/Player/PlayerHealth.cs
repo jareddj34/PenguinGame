@@ -1,36 +1,83 @@
 using UnityEngine;
+using System.Collections;
+using System;
 
 public class PlayerHealth : MonoBehaviour
 {
 
     private PlayerMovement playerMovement;
+    private PlayerSound playerSound;
     private PlayerShield playerShield;
 
-    public int maxHealth = 100;
-    public int currentHealth { get; private set; }
+    [Header("Heart Containers")]
+    [Tooltip("How many heart slots the player starts with.")]
+    public int maxHeartContainers = 3;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    /// <summary>How much HP one full heart represents. Half a heart = HealthPerContainer * 0.5.</summary>
+    public const float HealthPerContainer = 2f;
+
+    public float maxHealth { get; private set; }
+    public float currentHealth { get; private set; }
+    public event Action<float, float> OnHealthChanged; // (currentHealth, maxHealth)
+
+    private bool isInvulnerable = false;
+
+    private Renderer[] m_Renderers;
+    private Color[] m_OriginalColors;
+    private Coroutine m_FlashCoroutine;
+
     void Start()
     {
+        maxHealth = maxHeartContainers * HealthPerContainer;
         currentHealth = maxHealth;
         playerMovement = GetComponent<PlayerMovement>();
+        playerSound = GetComponent<PlayerSound>();
         playerShield = GetComponent<PlayerShield>();
+
+        m_Renderers = GetComponentsInChildren<Renderer>(true);
+        m_OriginalColors = new Color[m_Renderers.Length];
+        for (int i = 0; i < m_Renderers.Length; i++)
+        {
+            m_OriginalColors[i] = m_Renderers[i].material.color;
+        }
     }
 
-    public void TakeDamage(int damage)
+    /// <summary>
+    /// Adds heart containers (Zelda-style upgrade). Also fills the new hearts.
+    /// Call this when the player collects a Heart Container item.
+    /// </summary>
+    public void AddHeartContainer(int count = 1)
     {
-        currentHealth -= damage;
-        Debug.Log("Player took " + damage + " damage. Current health: " + currentHealth);
+        maxHeartContainers += count;
+        maxHealth = maxHeartContainers * HealthPerContainer;
+        currentHealth = Mathf.Min(currentHealth + count * HealthPerContainer, maxHealth);
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (isInvulnerable) return;
+
+        currentHealth = Mathf.Max(currentHealth - damage, 0f);
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+
+        playerSound.PlayHurt();
+        playerSound.PlayHit();
+
+        if (m_FlashCoroutine != null) StopCoroutine(m_FlashCoroutine);
+        StartCoroutine(InvulnerabilityCoroutine(0.75f));
+        m_FlashCoroutine = StartCoroutine(FlashCoroutine(0.75f));
+
         if (currentHealth <= 0)
         {
             Die();
         }
     }
 
-    public void Heal(int amount)
+    public void Heal(float amount)
     {
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
-        Debug.Log("Player healed. Current health: " + currentHealth);
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
     public void Die()
@@ -39,13 +86,24 @@ public class PlayerHealth : MonoBehaviour
         Debug.Log("Player has died!");
     }
 
+    IEnumerator InvulnerabilityCoroutine(float duration)
+    {
+        isInvulnerable = true;
+        yield return new WaitForSeconds(0.1f);
+        playerMovement.isInvulnerable = true;
+        yield return new WaitForSeconds(duration - 0.1f);
+        isInvulnerable = false;
+        playerMovement.isInvulnerable = false;
+    }
+
     // Knockback
     /// <summary>
     /// Returns true if the hit was successfully blocked by the shield,
     /// false if damage and knockback were applied normally.
     /// </summary>
-    public bool TakeHit(Vector3 attackerPosition, int damage, float force)
+    public bool TakeHit(Vector3 attackerPosition, float damage, float force)
     {
+        
         HitDirection dir = GetHitDirection(attackerPosition);
 
         if (playerShield != null && playerShield.TryBlock(dir))
@@ -54,6 +112,7 @@ public class PlayerHealth : MonoBehaviour
             return true; // blocked — caller can react (e.g. enemy stagger)
         }
 
+        if(isInvulnerable) return true;
         TakeDamage(damage);
         playerMovement?.StartKnockback(dir, force);
         return false; // not blocked
@@ -70,4 +129,43 @@ public class PlayerHealth : MonoBehaviour
         else
             return dotRight >= 0 ? HitDirection.Left : HitDirection.Right;
     }
+
+    IEnumerator FlashCoroutine(float duration)
+    {
+        float flashInterval = 0.1f;
+        float elapsed = 0f;
+        bool showFlash = true;
+
+        while (elapsed < duration)
+        {
+            if (showFlash)
+            {
+                foreach (var r in m_Renderers)
+                {
+                    r.enabled = true;
+                    r.material.EnableKeyword("_EMISSION");
+                    r.material.SetColor("_EmissionColor", Color.red);
+                }
+            }
+            else
+            {
+                foreach (var r in m_Renderers)
+                    r.enabled = false;
+            }
+
+            yield return new WaitForSeconds(flashInterval);
+            elapsed += flashInterval;
+            showFlash = !showFlash;
+        }
+
+        // Restore original appearance
+        for (int i = 0; i < m_Renderers.Length; i++)
+        {
+            m_Renderers[i].enabled = true;
+            m_Renderers[i].material.SetColor("_EmissionColor", Color.black);
+            m_Renderers[i].material.DisableKeyword("_EMISSION");
+            m_Renderers[i].material.color = m_OriginalColors[i];
+        }
+    }
+
 }

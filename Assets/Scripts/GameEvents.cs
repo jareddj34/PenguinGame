@@ -16,6 +16,7 @@ public class GameEvents : MonoBehaviour
     private PlayerHealth playerHealth;
     private PlayerShield playerShield;
     private PlayerThrow playerThrow;
+    private ItemsHUD itemsHUD;
     private DialogueRunner dialogueRunner;
     public GameObject dialogueUI;
 
@@ -35,6 +36,7 @@ public class GameEvents : MonoBehaviour
         playerHealth = FindFirstObjectByType<PlayerHealth>();
         playerShield = FindFirstObjectByType<PlayerShield>();
         playerThrow = FindFirstObjectByType<PlayerThrow>();
+        itemsHUD = FindFirstObjectByType<ItemsHUD>();
         itemPopup = FindFirstObjectByType<ItemPopup>();
 
         dialogueRunner = FindFirstObjectByType<DialogueRunner>();
@@ -90,21 +92,24 @@ public class GameEvents : MonoBehaviour
     public void GiveSword()
     {
         playerAttack.GotSword();
+        itemsHUD.ShowSword();
     }
 
     public void GiveShield()
     {
         playerShield.GotShield();
+        itemsHUD.ShowShield();
     }
 
     public void FirstHealthPickup()
     {
-        playerHealth.Heal(10);
+        playerHealth.Heal(2);
     }
 
     public void FirstSnowballPickup()
     {
         playerThrow.AddAmmo(3);
+        itemsHUD.ShowSnowball();
     }
 
     private void OnDialogueComplete()

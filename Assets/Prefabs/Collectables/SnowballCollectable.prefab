@@ -339,4 +339,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5faa00d9dad0078428dc9d67df20f789, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SnowballPickup
+  firstPickupItem: {fileID: 11400000, guid: cd371211f31e26b45abd22afdfdba02b, type: 2}
+  firstPickupFlagID: first_snowball_pickup
   snowballs: 3

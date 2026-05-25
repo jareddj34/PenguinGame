@@ -4,6 +4,13 @@ public class Snowball : MonoBehaviour
 {
     public GameObject particleEffect;
 
+    /// <summary>
+    /// Set by whoever spawns this snowball. The snowball will pass through
+    /// (ignore) the owner and all of its children, so it never hits the
+    /// character that threw it — whether that's the player or an NPC.
+    /// </summary>
+    [HideInInspector] public GameObject owner;
+
     [Header("Settings")]
     public float speed = 12f;
     public float maxDistance = 8f;
@@ -30,11 +37,10 @@ public class Snowball : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-
-        if(other.gameObject.layer == LayerMask.NameToLayer("Player"))
-        {
+        // Ignore the object that threw this snowball (and any of its children,
+        // e.g. a hitbox that lives on a child transform).
+        if (owner != null && other.transform.IsChildOf(owner.transform) || other.gameObject.layer == LayerMask.NameToLayer("Ignore Raycast"))
             return;
-        }
 
         // Use your existing IHittable interface so enemies react the same way
         var hittable = other.GetComponent<IHittable>();
@@ -45,6 +51,15 @@ public class Snowball : MonoBehaviour
             Vector3 knockbackDir = (other.transform.position - transform.position).normalized;
             knockbackDir.y = 0f; // Keep knockback flat on the ground plane
             hittable.TakeDamage(damage, knockbackDir, knockbackForce);
+        }
+
+        PlayerHealth playerHealth = other.GetComponentInParent<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            // Knockback direction is from the hitbox outward toward the player
+            Vector3 knockbackDir = (other.transform.position - transform.position).normalized;
+            knockbackDir.y = 0f; // Keep knockback flat on the ground plane
+            playerHealth.TakeHit(transform.position, damage, knockbackForce);
         }
 
         GameObject particle = Instantiate(particleEffect, transform.position, Quaternion.identity);

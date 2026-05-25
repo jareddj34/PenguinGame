@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 public class PlayerThrow : MonoBehaviour
 {
@@ -17,6 +18,8 @@ public class PlayerThrow : MonoBehaviour
     [Header("Refs")]
     public GameObject snowballPrefab;
     public Transform throwOrigin; // assign an empty child transform at the penguin's hand
+
+    public event Action<int> OnAmmoChanged; // (currentAmmo)
 
     private Animator animator;
     private static readonly int ThrowHash = Animator.StringToHash("Throw");
@@ -36,6 +39,7 @@ public class PlayerThrow : MonoBehaviour
         if (!GameStateManager.Instance.IsPlayerInputEnabled) return;
 
         snowballCount--;
+        OnAmmoChanged?.Invoke(snowballCount);
         nextThrowTime = Time.time + throwCooldown;
 
         playerMovement.isAttacking = true; // freeze movement during throw
@@ -50,12 +54,15 @@ public class PlayerThrow : MonoBehaviour
     {
         if (snowballPrefab == null) return;
         Transform origin = throwOrigin != null ? throwOrigin : transform;
-        Instantiate(snowballPrefab, origin.position, transform.rotation);
+        GameObject snowball = Instantiate(snowballPrefab, origin.position, transform.rotation);
+        Snowball sb = snowball.GetComponent<Snowball>();
+        if (sb != null) sb.owner = gameObject;
     }
 
     public void AddAmmo(int amount)
     {
         snowballCount = Mathf.Min(snowballCount + amount, maxSnowballs);
+        OnAmmoChanged?.Invoke(snowballCount);
     }
 
     private IEnumerator ResetThrowState(float delay)

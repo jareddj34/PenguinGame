@@ -204,7 +204,7 @@ public class SceneTransitionManager : MonoBehaviour
     /// </summary>
     private void RewireFollowCameras(Transform playerTransform)
     {
-        CinemachineCamera[] vcams = FindObjectsByType<CinemachineCamera>(FindObjectsSortMode.None);
+        CinemachineCamera[] vcams = FindObjectsByType<CinemachineCamera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
         foreach (CinemachineCamera vcam in vcams)
         {

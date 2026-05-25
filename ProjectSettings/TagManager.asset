@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Snow
+  - Grass
+  - IceRock
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -11,8 +15,8 @@ TagManager:
   - Player
   - Water
   - UI
-  - 
-  - 
+  - Hazard
+  - Ground
   - 
   - 
   - 

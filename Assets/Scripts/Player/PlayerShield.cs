@@ -3,6 +3,10 @@ using UnityEngine.InputSystem;
 
 public class PlayerShield : MonoBehaviour
 {
+
+    [Header("Debug")]
+    public bool giveShieldOnStart = false;
+
     [Header("Requirements")]
     [Tooltip("The player must have picked up a shield before they can use it.")]
     public bool hasShield = false;
@@ -37,6 +41,11 @@ public class PlayerShield : MonoBehaviour
     {
         playerMovement = GetComponent<PlayerMovement>();
         animator = GetComponentInChildren<Animator>();
+
+        if (giveShieldOnStart)
+        {
+            GotShield();
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -150,4 +159,5 @@ public class PlayerShield : MonoBehaviour
         if (shieldObject != null)
             shieldObject.SetActive(true);
     }
+
 }

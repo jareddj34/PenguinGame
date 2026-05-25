@@ -11,6 +11,11 @@ public class EnemyHealth : MonoBehaviour, IHittable
     // [SerializeField] float knockbackForce = 6f;
     [SerializeField] float knockbackDuration = 0.25f;
 
+    [Header("Sounds")]
+    public AudioSource audioSource;
+    [SerializeField] AudioClip hitSound;
+    [SerializeField] AudioClip deathSound;
+
     float currentHealth;
     bool isDying;
     NavMeshAgent agent;
@@ -62,6 +67,9 @@ public class EnemyHealth : MonoBehaviour, IHittable
         if(!isDying)
         {
             enemyAI.HitAnimation();
+
+            audioSource.pitch = Random.Range(0.95f, 1.05f); // Add some random pitch variation
+            audioSource.PlayOneShot(hitSound);
         }
 
         if (agent != null && !isKnockedBack) {
@@ -69,6 +77,8 @@ public class EnemyHealth : MonoBehaviour, IHittable
 
         } else if (isDying) {
             Die();
+
+            audioSource.PlayOneShot(deathSound);
         }
 
     }

@@ -6,6 +6,7 @@ public class PlayerAnimationEvents : MonoBehaviour
     public PlayerMovement playerMovement;
     public PlayerAttack playerAttack;
     public PlayerThrow playerThrow;
+    public PlayerSound playerSound;
     public GameObject swordHitbox;
 
     public void OnAttackAnimationComplete()
@@ -27,9 +28,19 @@ public class PlayerAnimationEvents : MonoBehaviour
         playerAttack.SpawnSlash();
     }
 
+    public void PlaySwordSwingSound()
+    {
+        playerSound.PlaySwordSwing();
+    }
+
     public void ThrowSnowball()
     {
         playerThrow.SpawnSnowball();
+    }
+
+    public void PlayFootstepSound()
+    {
+        playerSound.PlayFootstep();
     }
 
 

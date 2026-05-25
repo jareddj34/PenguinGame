@@ -14,7 +14,7 @@ public class EnemyHitbox : MonoBehaviour
 {
     [Tooltip("Damage dealt to the player per swing. " +
              "Can also be driven from EnemyAI if you prefer one source of truth.")]
-    [SerializeField] int damage = 10;
+    [SerializeField] public float damage = 10f;
 
     public float knockBackForce = 10f;  // How strongly the player is knocked back when hit
 
