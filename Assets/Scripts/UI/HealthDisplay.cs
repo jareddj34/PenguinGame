@@ -19,13 +19,18 @@ public class HealthDisplay : MonoBehaviour
 
     void Start()
     {
-        playerHealth = FindFirstObjectByType<PlayerHealth>();
+        Rewire();
+    }
 
-        if (playerHealth == null)
+    public void Rewire()
+    {
+        if(playerHealth != null)
         {
-            Debug.LogError("HealthDisplay: No PlayerHealth found in scene.");
-            return;
+            playerHealth.OnHealthChanged -= OnHealthChanged;
         }
+        
+        playerHealth = FindFirstObjectByType<PlayerHealth>();
+        if(playerHealth == null) return;
 
         playerHealth.OnHealthChanged += OnHealthChanged;
         BuildHearts();

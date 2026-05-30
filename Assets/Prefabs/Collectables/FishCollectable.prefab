@@ -69,7 +69,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HealthPickup
   firstPickupItem: {fileID: 11400000, guid: c4410df4f1e5c234180c0b493ebc2493, type: 2}
   firstPickupFlagID: first_health_pickup
-  healAmount: 1
+  healAmount: 2
 --- !u!1001 &224960300227115843
 PrefabInstance:
   m_ObjectHideFlags: 0

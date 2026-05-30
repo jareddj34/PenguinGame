@@ -9,6 +9,7 @@ public class PlayerSound : MonoBehaviour
     public AudioSource footstepAudioSource;
     public AudioSource actionAudioSource;
     public AudioSource hurtAudioSource;
+    public AudioSource pickupAudioSource;
 
     [Header("Snow Footstep Sounds")]
     public List<AudioClip> snowFS;
@@ -23,10 +24,19 @@ public class PlayerSound : MonoBehaviour
     public AudioClip swordSwingSound;
     public AudioClip swordHardHitSound;
     public AudioClip swordFleshHitSound;
+    public AudioClip shieldUpSound;
+    public AudioClip shieldBlockSound;
+    public AudioClip gruntSound;
 
     [Header("Hurt Sounds")]
     public AudioClip hurtSound;
     public AudioClip hitSound;
+    public AudioClip deathSound;
+
+    [Header("Pickup Sounds")]
+    public AudioClip pickupSound;
+    public AudioClip heartPickupSound;
+    public AudioClip snowballPickupSound;
 
 
     enum SurfaceType
@@ -73,6 +83,31 @@ public class PlayerSound : MonoBehaviour
         }
     }
 
+    public void PlayShieldUp()
+    {
+        if (actionAudioSource != null && shieldUpSound != null)
+        {
+            actionAudioSource.PlayOneShot(shieldUpSound);
+        }
+    }
+
+    public void PlayShieldBlock()
+    {
+        if (actionAudioSource != null && shieldBlockSound != null)
+        {
+            Debug.Log("Doing shield block");
+            actionAudioSource.PlayOneShot(shieldBlockSound);
+        }
+    }
+
+    public void PlayGrunt()
+    {
+        if (actionAudioSource != null && gruntSound != null)
+        {
+            actionAudioSource.PlayOneShot(gruntSound);
+        }
+    }
+
 
     // Footstep stuff -----------------------
     private SurfaceType GetCurrentSurface()
@@ -82,14 +117,12 @@ public class PlayerSound : MonoBehaviour
         if(Physics.Raycast(ray, out RaycastHit hit, 3f, groundLayer))
         {
             string tag = hit.collider.tag;
-            Debug.Log("Surface detected: " + tag);
 
             if (tag == "Snow")
                 return SurfaceType.Snow;
             else if (tag == "Ice")
                 return SurfaceType.Ice;
             else if (tag == "Grass")
-                Debug.Log("Grass detected");
                 return SurfaceType.Grass;
         }
 
@@ -126,6 +159,22 @@ public class PlayerSound : MonoBehaviour
             footstepAudioSource.Play();
         }
     }
+    
+    public void PlayShieldFootstep()
+    {
+        SurfaceType currentSurface = GetCurrentSurface();
+        List<AudioClip> footstepClips = GetFootstepClipsForSurface(currentSurface);
+
+        if (footstepAudioSource != null && footstepClips.Count > 0)
+        {
+            int index = Random.Range(0, footstepClips.Count);
+            AudioClip clip = footstepClips[index];
+            footstepAudioSource.clip = clip;
+            footstepAudioSource.volume = Random.Range(0.4f, 0.6f); // Add some random volume variation
+            footstepAudioSource.pitch = Random.Range(0.95f, 1.05f); // Add some random pitch variation
+            footstepAudioSource.Play();
+        }
+    }
     // --------------------------------------
 
     // Hurt sound
@@ -143,6 +192,40 @@ public class PlayerSound : MonoBehaviour
         if (actionAudioSource != null && hitSound != null)
         {
             actionAudioSource.PlayOneShot(hitSound);
+        }
+    }
+
+    public void PlayDeath()
+    {
+        if (actionAudioSource != null && deathSound != null)
+        {
+            actionAudioSource.PlayOneShot(deathSound);
+        }
+    }
+
+    // Pickup sounds
+    public void PlayPickupEvent()
+    {
+        if (pickupAudioSource != null && pickupSound != null)
+        {
+            pickupAudioSource.PlayOneShot(pickupSound);
+            Debug.Log("Played pickup sound");
+        }
+    }
+
+    public void PlayHeartPickup()
+    {
+        if (pickupAudioSource != null && heartPickupSound != null)
+        {
+            pickupAudioSource.PlayOneShot(heartPickupSound);
+        }
+    }
+
+    public void PlaySnowballPickup()
+    {
+        if (pickupAudioSource != null && snowballPickupSound != null)
+        {
+            pickupAudioSource.PlayOneShot(snowballPickupSound);
         }
     }
 }

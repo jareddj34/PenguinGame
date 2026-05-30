@@ -50,8 +50,6 @@ public class EnemyHealth : MonoBehaviour, IHittable
 
         currentHealth -= amount;
 
-        Debug.Log("Lost " + amount + " health");
-
         // Hook for hit animations/sounds here
         // e.g. animator.SetTrigger("Hit");
 
@@ -76,9 +74,8 @@ public class EnemyHealth : MonoBehaviour, IHittable
             StartCoroutine(KnockbackCoroutine(knockbackDirection, knockbackForce, isDying));
 
         } else if (isDying) {
+            
             Die();
-
-            audioSource.PlayOneShot(deathSound);
         }
 
     }
@@ -115,7 +112,8 @@ public class EnemyHealth : MonoBehaviour, IHittable
 
     void Die()
     {
-        Debug.Log($"[EnemyHealth] {gameObject.name} has been defeated!");
+        audioSource.PlayOneShot(deathSound);
+
         if (m_FlashCoroutine != null)
             StopCoroutine(m_FlashCoroutine); // cancel the flash so it stays red
         SetMeshColor(Color.red);             // lock it red on death

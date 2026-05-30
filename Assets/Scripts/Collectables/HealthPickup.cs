@@ -8,5 +8,7 @@ public class HealthPickup : Collectable
     protected override void OnCollect(GameObject player)
     {
         player.GetComponent<PlayerHealth>()?.Heal(healAmount);
+        
+        player.GetComponent<PlayerSound>()?.PlayHeartPickup();
     }
 }

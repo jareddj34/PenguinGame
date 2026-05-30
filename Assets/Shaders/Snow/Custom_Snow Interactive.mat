@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Custom_Snow Interactive
+  m_Shader: {fileID: 4800000, guid: cb55bade67fa7c442958c3d1eed5079b, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: a906ddba213add84f969e2c0880af58d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Noise:
+        m_Texture: {fileID: 2800000, guid: 2246b024fde86514f8000bef3fd8f795, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SparkleNoise:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _MaxTessDistance: 100
+    - _NoiseScale: 0.01
+    - _NoiseWeight: 0.24
+    - _PathBlendOffset: 0.3
+    - _PathBlending: 3
+    - _PathCutoff: 0
+    - _PathSmooth: 1
+    - _RenderingLayer: 3.24
+    - _RimPower: 20
+    - _SnowDepth: 2
+    - _SnowHeight: 0
+    - _SnowTextureOpacity: 1.56
+    - _SnowTextureScale: 0.08
+    - _SparkCutoff: 0.6
+    - _SparkleScale: 0.26
+    - _Tess: 32
+    m_Colors:
+    - _Color: {r: 0.20754719, g: 0.20754719, b: 0.20754719, a: 1}
+    - _PathColorIn: {r: 0.32293522, g: 0.32293522, b: 0.38679248, a: 1}
+    - _PathColorOut: {r: 0.8156817, g: 0.8156817, b: 0.8867924, a: 1}
+    - _RimColor: {r: 0.13843894, g: 0.3663973, b: 0.4811321, a: 1}
+    - _ShadowColor: {r: 0.1549929, g: 0.28236756, b: 0.4056604, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

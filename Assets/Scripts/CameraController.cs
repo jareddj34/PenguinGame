@@ -6,6 +6,7 @@ public class CameraController : MonoBehaviour
     [Tooltip("The virtual camera to activate during dialogue. Should start disabled.")]
     [SerializeField] private CinemachineCamera dialogueCamera;
     [SerializeField] private CinemachineCamera itemGotCamera;
+    public CinemachineCamera cliffCamera;
 
     // -------------------------------------------------------------------------
     // Unity Lifecycle
@@ -43,5 +44,15 @@ public class CameraController : MonoBehaviour
             dialogueCamera.gameObject.SetActive(false);
             itemGotCamera.gameObject.SetActive(false);
         }
+    }
+
+    public void ChangeToCliffCamera()
+    {
+        cliffCamera.gameObject.SetActive(true);
+    }
+
+    public void ChangeFromCliffCamera()
+    {
+        cliffCamera.gameObject.SetActive(false);
     }
 }

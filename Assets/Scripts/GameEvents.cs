@@ -10,15 +10,18 @@ public class GameEvents : MonoBehaviour
     public event Action OnPromptHide;
     // public event Action OnSwordPickedUp;
     public event Action<ItemData> OnItemPickedUp;
+    public event Action OnPlayerDied;
 
     private PlayerMovement playerMovement;
     private PlayerAttack playerAttack;
     private PlayerHealth playerHealth;
     private PlayerShield playerShield;
     private PlayerThrow playerThrow;
+    private PlayerSound playerSound;
     private ItemsHUD itemsHUD;
     private DialogueRunner dialogueRunner;
     public GameObject dialogueUI;
+    private AudioManager audioManager;
 
     private ItemPopup itemPopup;
 
@@ -36,8 +39,10 @@ public class GameEvents : MonoBehaviour
         playerHealth = FindFirstObjectByType<PlayerHealth>();
         playerShield = FindFirstObjectByType<PlayerShield>();
         playerThrow = FindFirstObjectByType<PlayerThrow>();
+        playerSound = FindFirstObjectByType<PlayerSound>();
         itemsHUD = FindFirstObjectByType<ItemsHUD>();
         itemPopup = FindFirstObjectByType<ItemPopup>();
+        audioManager = FindFirstObjectByType<AudioManager>();
 
         dialogueRunner = FindFirstObjectByType<DialogueRunner>();
         dialogueRunner.AddCommandHandler("GiveSword", GiveSword);
@@ -58,6 +63,8 @@ public class GameEvents : MonoBehaviour
     public void ItemPickedUp(ItemData item)
     {
         GameStateManager.Instance.EnterReceivingItem();
+        AudioManager.Instance.ReduceMusicVolume();
+        playerSound.PlayPickupEvent();
         OnItemPickedUp?.Invoke(item);
         dialogueRunner.StartDialogue(item.yarnNodeName);
     }
@@ -65,6 +72,7 @@ public class GameEvents : MonoBehaviour
     public void EndItemGot()
     {
         playerMovement.EndItemGot();
+        AudioManager.Instance.RestoreMusicVolume();
         itemPopup.Hide();
     }
 
@@ -104,17 +112,30 @@ public class GameEvents : MonoBehaviour
     public void FirstHealthPickup()
     {
         playerHealth.Heal(2);
+        playerSound.PlayHeartPickup();
     }
 
     public void FirstSnowballPickup()
     {
         playerThrow.AddAmmo(3);
+        playerSound.PlaySnowballPickup();
+        playerThrow.gotSnowballs = true;
         itemsHUD.ShowSnowball();
+        dialogueRunner.VariableStorage.SetValue("$got_snowballs", true);
+        
+        // Set snowball picked up to true in case they get it in chest?
+        WorldStateManager.Instance.SetGlobalFlag("first_snowball_pickup", true);
     }
 
-    private void OnDialogueComplete()
+    public void PlayerDied()
     {
+        OnPlayerDied?.Invoke();
+        audioManager.PlayGameOverMusic();
+    }
 
+    public void OnDialogueComplete()
+    {
+        
     }
 
 }

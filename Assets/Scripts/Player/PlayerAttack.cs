@@ -32,11 +32,12 @@ public class PlayerAttack : MonoBehaviour
 
     void Start()
     {
+        
         playerMovement = GetComponent<PlayerMovement>();
         playerShield = GetComponent<PlayerShield>();
         animator = GetComponentInChildren<Animator>();
 
-        if (giveSwordOnStart)
+        if (giveSwordOnStart || (PlayerSaveData.hasData && PlayerSaveData.hasSword))
         {
             GotSword();
         }

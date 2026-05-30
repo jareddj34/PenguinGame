@@ -39,7 +39,7 @@ public class Snowball : MonoBehaviour
     {
         // Ignore the object that threw this snowball (and any of its children,
         // e.g. a hitbox that lives on a child transform).
-        if (owner != null && other.transform.IsChildOf(owner.transform) || other.gameObject.layer == LayerMask.NameToLayer("Ignore Raycast"))
+        if (owner != null && other.transform.IsChildOf(owner.transform) || other.gameObject.layer == LayerMask.NameToLayer("Ignore Raycast") || other.gameObject.layer == LayerMask.NameToLayer("Ground"))
             return;
 
         // Use your existing IHittable interface so enemies react the same way

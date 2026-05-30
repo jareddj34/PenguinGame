@@ -10,6 +10,8 @@ public class Chest : InteractableBase
     private Animator animator;
     private bool opened = false;
 
+    public AudioSource chestOpenSource;
+
     [SerializeField] private StatefulObject stateful;
 
     private void Start()
@@ -35,6 +37,8 @@ public class Chest : InteractableBase
             animator = GetComponent<Animator>();
             animator.SetTrigger("Open");
 
+            chestOpenSource.Play();
+
             FreezePlayer();
 
             base.OnStopHover();
@@ -49,6 +53,7 @@ public class Chest : InteractableBase
 
     public void OnOpened()
     {
+
         stateful?.MarkDone(); // save "this chest is open" to WorldStateManager
         GameEvents.Instance.ItemPickedUp(itemData);
         GameEvents.Instance.UnfreezePlayer();

@@ -307,6 +307,7 @@ public class SceneTransitionManager : MonoBehaviour
 
         _fadeImage       = imgGO.AddComponent<Image>();
         _fadeImage.color = new Color(fadeColor.r, fadeColor.g, fadeColor.b, 0f); // start transparent
+        _fadeImage.raycastTarget = false;
 
         RectTransform rect = imgGO.GetComponent<RectTransform>();
         rect.anchorMin = Vector2.zero;

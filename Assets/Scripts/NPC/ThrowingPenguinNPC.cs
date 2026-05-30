@@ -224,4 +224,22 @@ public class ThrowingPenguinNPC : InteractableBase
 
         transform.rotation = _originalRotation;
     }
+
+    [YarnFunction("GiveSnowballs")]
+    public static string GiveSnowballs()
+    {
+        PlayerThrow playerThrow = Object.FindObjectOfType<PlayerThrow>();
+
+        if (playerThrow != null)
+            playerThrow.AddAmmo(3);
+
+        return "";
+    }
+
+    [YarnFunction("HasSnowballs")]
+    public static bool HasSnowballs()
+    {
+        PlayerThrow playerThrow = Object.FindObjectOfType<PlayerThrow>();
+        return playerThrow != null && playerThrow.snowballCount > 0;
+    }
 }

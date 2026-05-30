@@ -9,7 +9,10 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-    path: Assets/Scenes/Interior.unity
+    path: Assets/Scenes/Igloo1.unity
     guid: a23b0c2bf50c4704898871ca4877cacd
+  - enabled: 1
+    path: Assets/Scenes/Igloo2.unity
+    guid: 5815bdc52cc0c7a49bc6e2dcf84aaa8c
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

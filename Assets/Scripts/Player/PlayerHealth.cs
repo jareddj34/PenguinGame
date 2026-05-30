@@ -20,6 +20,8 @@ public class PlayerHealth : MonoBehaviour
     public float currentHealth { get; private set; }
     public event Action<float, float> OnHealthChanged; // (currentHealth, maxHealth)
 
+    private bool isDead = false;
+
     private bool isInvulnerable = false;
 
     private Renderer[] m_Renderers;
@@ -28,6 +30,10 @@ public class PlayerHealth : MonoBehaviour
 
     void Start()
     {
+        if(PlayerSaveData.hasData) {
+            maxHeartContainers = PlayerSaveData.maxHeartContainers;
+        }
+
         maxHealth = maxHeartContainers * HealthPerContainer;
         currentHealth = maxHealth;
         playerMovement = GetComponent<PlayerMovement>();
@@ -56,7 +62,7 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        if (isInvulnerable) return;
+        if (isInvulnerable || isDead) return;
 
         currentHealth = Mathf.Max(currentHealth - damage, 0f);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
@@ -82,8 +88,24 @@ public class PlayerHealth : MonoBehaviour
 
     public void Die()
     {
-        // Handle player death (e.g., respawn, game over screen)
-        Debug.Log("Player has died!");
+        if (isDead) return;
+        isDead = true;
+
+        if (m_FlashCoroutine != null)
+        {
+            StopCoroutine(m_FlashCoroutine);
+            // Restore renderers so the death animation is visible
+            foreach (var r in m_Renderers) r.enabled = true;
+        }
+
+        playerSound.PlayDeath();
+
+        // Lock out all input immediately
+        GameStateManager.Instance?.EnterDead();
+        AudioManager.Instance?.StopMusic();
+
+        // Play the animation (movement stays active just long enough to fire the trigger)
+        playerMovement?.TriggerDeath();
     }
 
     IEnumerator InvulnerabilityCoroutine(float duration)
@@ -106,9 +128,9 @@ public class PlayerHealth : MonoBehaviour
         
         HitDirection dir = GetHitDirection(attackerPosition);
 
+        // Successfully blocked by shield
         if (playerShield != null && playerShield.TryBlock(dir))
         {
-            Debug.Log("Hit blocked by shield!");
             return true; // blocked — caller can react (e.g. enemy stagger)
         }
 

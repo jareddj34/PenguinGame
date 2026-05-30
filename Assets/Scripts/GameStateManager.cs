@@ -7,7 +7,8 @@ public enum GameState
 {
     Normal,
     Dialogue,
-    ReceivingItem
+    ReceivingItem,
+    Dead,
 }
 
 public class GameStateManager : MonoBehaviour
@@ -96,6 +97,11 @@ public class GameStateManager : MonoBehaviour
 
     public void ExitReceivingItem()  => SetState(GameState.Normal);
 
+    public void EnterDead()
+    {
+        SetState(GameState.Dead);
+    }
+
     private void ApplyState(GameState state)
     {
         switch (state)
@@ -113,6 +119,11 @@ public class GameStateManager : MonoBehaviour
             case GameState.ReceivingItem:
                 // PlayerMovement stays enabled so animation events can still fire
                 if (playerMovement != null) playerMovement.enabled = true;
+                if (playerAttack   != null) playerAttack.enabled   = false;
+                IsPlayerInputEnabled = false;
+                break;
+            case GameState.Dead:
+                if (playerMovement != null) playerMovement.enabled = false;
                 if (playerAttack   != null) playerAttack.enabled   = false;
                 IsPlayerInputEnabled = false;
                 break;

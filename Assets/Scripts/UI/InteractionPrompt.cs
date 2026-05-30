@@ -36,14 +36,12 @@ public class InteractionPrompt : MonoBehaviour
         animator.ResetTrigger("End"); // Clear any stale End trigger that may have queued
         animator.SetTrigger("Start");
         promptText.text = prompt;
-        Debug.Log("Showing prompt: " + prompt);
     }
 
     private void Hide()
     {
         animator.ResetTrigger("Start"); // Clear any stale Start trigger that may have queued
         animator.SetTrigger("End");
-        Debug.Log("Hiding prompt");
         _hideCoroutine = StartCoroutine(HideAfterAnimation());
     }
 

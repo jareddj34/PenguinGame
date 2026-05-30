@@ -46,6 +46,7 @@ public class PlayerMovement : MonoBehaviour
     private static readonly int HitBackHash  = Animator.StringToHash("HitBack");
     private static readonly int HitLeftHash  = Animator.StringToHash("HitLeft");
     private static readonly int HitRightHash = Animator.StringToHash("HitRight");
+    private static readonly int DieHash = Animator.StringToHash("Death");
 
     // State
     private Vector2 moveInput;
@@ -134,10 +135,12 @@ public class PlayerMovement : MonoBehaviour
             return; // coroutine handles everything while isSliding is true
         }
 
+        HandleSpikePushing();
         ApplyGravity();
         MoveCharacter();
         RotateCharacter();
         UpdateAnimator();
+        
     }
 
     // -------------------------------------------------------------------------
@@ -151,10 +154,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnSprint(InputValue value)
     {
+        if (!enabled) return; // Ignore input while component is disabled (e.g. during dialogue)
+
         if (!value.isPressed)
             return;
 
-        if (isDashing || dashCooldownTimer > 0f || isSliding)
+        if (isDashing || dashCooldownTimer > 0f || isSliding || isKnockedBack || isAttacking || isReceivingItem || isFrozen)
             return;
 
         StartCoroutine(DashCoroutine());
@@ -404,30 +409,56 @@ public class PlayerMovement : MonoBehaviour
     [Header("Pushing")]
     [SerializeField] private float pushForce = 5f;
     [SerializeField] private float spikePushForce = 12f;
+    [SerializeField] private LayerMask spikeLayer;
+
+    private void HandleSpikePushing()
+    {
+        bool shieldActive = playerShield != null && playerShield.IsShielding;
+        if (!shieldActive || moveInput.sqrMagnitude < 0.01f) return;
+
+        Vector3 origin = transform.position;
+        Vector3 direction = transform.forward;
+        float distance = controller.radius + 0.3f;
+
+        bool hit = Physics.Raycast(origin, direction, out RaycastHit hitInfo, distance, spikeLayer);
+
+        // Green if hitting something, red if not
+        Debug.DrawRay(origin, direction * distance, hit ? Color.green : Color.red);
+
+        if (hit)
+        {
+            float moveAmount = moveSpeed * Time.deltaTime * (playerShield != null ? playerShield.SpeedMultiplier : 1f);
+            hitInfo.collider.GetComponent<IceSpike>()?.PushThisFrame(transform.forward, moveAmount);
+        }
+        
+    }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        // --- Ice spike interaction ---
         IceSpike spike = hit.collider.GetComponent<IceSpike>();
-        
         if (spike != null)
         {
             bool shieldActive = playerShield != null && playerShield.IsShielding;
-            if (shieldActive)
-                spike.PushThisFrame(transform.forward);
-            else
+            if (!shieldActive)
                 spike.DamagePlayer(this);
             return;
         }
 
-        // --- Generic rigidbody pushing (for your test cube etc.) ---
+        // Generic rigidbody push
         Rigidbody rb = hit.collider.attachedRigidbody;
-        Vector3 pushDir = new Vector3(hit.moveDirection.x, 0f, hit.moveDirection.z);
         if (rb == null || rb.isKinematic) return;
         if (hit.moveDirection.y < -0.3f) return;
-
-        
+        Vector3 pushDir = new Vector3(hit.moveDirection.x, 0f, hit.moveDirection.z);
         rb.AddForce(pushDir * pushForce, ForceMode.Force);
+    }
+
+    // -------------------------------------------------------------------------
+    // Death
+    // -------------------------------------------------------------------------
+    public void TriggerDeath()
+    {
+        if (animator != null)
+            animator.SetTrigger(DieHash);
     }
 
 }

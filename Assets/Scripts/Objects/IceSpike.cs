@@ -11,25 +11,54 @@ public class IceSpike : MonoBehaviour
     [SerializeField] private float pushSpeed = 5f;
     [SerializeField] private LayerMask wallLayers;
 
+    [Header("Sound")]
+    public AudioSource audioSource;
+    public AudioClip pushSound;
+    private bool wasPushedThisFrame;
+
     private BoxCollider boxCol;
 
     private void Awake()
     {
         boxCol = GetComponent<BoxCollider>();
+        audioSource = GetComponent<AudioSource>();
+        audioSource.clip = pushSound;
+        audioSource.loop = true;
+        audioSource.playOnAwake = false;
+        audioSource.Stop();
     }
 
     // Called every frame the shielded player is in contact
-    public void PushThisFrame(Vector3 direction)
+    public void PushThisFrame(Vector3 direction, float distance)
     {
-        float step = pushSpeed * Time.deltaTime;
         Vector3 halfExtents = Vector3.Scale(boxCol.size * 0.5f, transform.lossyScale);
 
-        // Don't move if a wall is in the way
         if (Physics.BoxCast(transform.position, halfExtents, direction,
-                out _, transform.rotation, step + 0.05f, wallLayers))
+                out _, transform.rotation, distance + 0.05f, wallLayers))
             return;
 
-        transform.position += direction * step;
+        transform.position += direction * distance;
+        wasPushedThisFrame = true;
+    }
+
+    private float lastPushedTime;
+    private const float AudioGracePeriod = 0.08f;
+    private void LateUpdate()
+    {
+        if (wasPushedThisFrame)
+        {
+            lastPushedTime = Time.time;
+            if (!audioSource.isPlaying) {
+                audioSource.Play();
+            }
+        }
+        else if (Time.time - lastPushedTime > AudioGracePeriod)
+        {
+            if (audioSource.isPlaying)
+                audioSource.Stop();
+        }
+
+        wasPushedThisFrame = false;
     }
 
     public void DamagePlayer(PlayerMovement player)

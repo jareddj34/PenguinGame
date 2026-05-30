@@ -12,13 +12,43 @@ public class ItemsHUD : MonoBehaviour
 
     void Start()
     {
-        swordIcon.SetActive(false);
-        shieldIcon.SetActive(false);
-        snowballIcon.SetActive(false);
+        Rewire();
+    }
+
+    void OnDestroy()
+    {
+        if(playerThrow != null)
+        {
+            playerThrow.OnAmmoChanged -= UpdateSnowballAmmo;
+        }
+    }
+
+    public void Rewire()
+    {
+        if(playerThrow != null)
+        {
+            playerThrow.OnAmmoChanged -= UpdateSnowballAmmo;
+        }
 
         playerThrow = FindFirstObjectByType<PlayerThrow>();
-        if (playerThrow != null)
+        
+        if(playerThrow != null)
+        {
             playerThrow.OnAmmoChanged += UpdateSnowballAmmo;
+        }
+        bool showSnowballs = playerThrow != null && playerThrow.gotSnowballs;
+        snowballIcon.SetActive(showSnowballs);
+        if(showSnowballs)
+        {
+            UpdateSnowballAmmo(playerThrow.snowballCount);
+        }
+
+        var attack = FindFirstObjectByType<PlayerAttack>();
+        var shield = FindFirstObjectByType<PlayerShield>();
+        swordIcon.SetActive(attack != null && attack.hasSword);
+        shieldIcon.SetActive(shield != null && shield.hasShield);
+
+
     }
 
     public void ShowSword()

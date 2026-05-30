@@ -28,6 +28,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] float minWaitTime     = 2f;
     [SerializeField] float maxWaitTime     = 5f;
     [SerializeField] float arrivedDistance = 0.4f; // "Close enough" threshold
+    [SerializeField] BoxCollider wanderZone;
 
     // ── Patrol ────────────────────────────────────────────────────────────
     [Header("Patrol")]
@@ -128,6 +129,9 @@ public class EnemyAI : MonoBehaviour
     void Update()
     {
         if (player == null) return;
+
+        if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameState.Dead)
+            return;
 
         float distToPlayer  = Vector3.Distance(transform.position, player.position);
         playerVisible = CanSeePlayer();
@@ -343,12 +347,31 @@ public class EnemyAI : MonoBehaviour
     {
         for (int i = 0; i < 10; i++)
         {
-            Vector3 randomPoint = wanderOrigin + Random.insideUnitSphere * wanderRadius;
-            randomPoint.y = wanderOrigin.y;
+            Vector3 randomPoint;
+
+            if (wanderZone != null)
+            {
+                // Pick a random point inside the box's world-space bounds
+                Bounds b = wanderZone.bounds;
+                randomPoint = new Vector3(
+                    Random.Range(b.min.x, b.max.x),
+                    wanderOrigin.y,
+                    Random.Range(b.min.z, b.max.z)
+                );
+            }
+            else
+            {
+                randomPoint = wanderOrigin + Random.insideUnitSphere * wanderRadius;
+                randomPoint.y = wanderOrigin.y;
+            }
 
             NavMeshHit hit;
             if (NavMesh.SamplePosition(randomPoint, out hit, 2f, NavMesh.AllAreas))
             {
+                // Double-check the snapped NavMesh point is still inside the zone
+                if (wanderZone != null && !wanderZone.bounds.Contains(hit.position))
+                    continue;
+
                 result = hit.position;
                 return true;
             }

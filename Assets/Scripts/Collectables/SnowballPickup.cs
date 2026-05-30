@@ -7,5 +7,7 @@ public class SnowballPickup : Collectable
     protected override void OnCollect(GameObject player)
     {
         player.GetComponent<PlayerThrow>()?.AddAmmo(snowballs);
+
+        player.GetComponent<PlayerSound>()?.PlaySnowballPickup();
     }
 }

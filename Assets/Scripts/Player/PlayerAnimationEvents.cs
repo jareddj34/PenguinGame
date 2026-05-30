@@ -43,5 +43,15 @@ public class PlayerAnimationEvents : MonoBehaviour
         playerSound.PlayFootstep();
     }
 
+    public void PlayShieldFootstepSound()
+    {
+        playerSound.PlayShieldFootstep();
+    }
+
+    public void OnDeathAnimationComplete()
+    {
+        GameEvents.Instance?.PlayerDied();
+    }
+
 
 }

@@ -7,16 +7,6 @@ Caden the Penguin: Take that SWORD over there to fight back if they give you a h
 Caden the Penguin: Good luck!
 ===
 
-title: ShieldPenguin
----
-Hayden the Penguin: Honk!... I mean... hey!
-Hayden the Penguin: Are you headed over there? Where all those nasty seals are?
-Hayden the Penguin: Those guys have a nasty bite that you don't wanna meet head first.
-Hayden the Penguin: Take that SHIELD over there to help you block those attacks.
-Hayden the Penguin: Seals have strong heads, but that shield should be able to take the damage.
-Hayden the Penguin: Be safe out there!
-===
-
 title: SlidePenguin
 ---
 Aidan the Penguin: Us penguins love sliding on our bellys!
@@ -32,11 +22,71 @@ Jaden the Penguin: Some tall looking penguins built this and then left it behind
 Jaden the Penguin: It doesn't bother me though because I love the warmth!
 Jaden the Penguin: All my friends make fun of me for it, but in another life I definitely lived in a warm climate.
 Jaden the Penguin: Being inside this igloo is the closes I'll get to it.
+Jaden the Penguin: I hate living in this icy nightmare. Too cold and too many inconviences, just like those ice spikes.
+Jaden the Penguin: They always get in the way of the path, the only way to get rid of 'em is to push them with something.
+Jaden the Penguin: Or else, it'll poke ya to death.
+Jaden the Penguin: I use my trusty shield to do so, but since I found this place, I have no need for it anymore!
 ===
+
+title: Igloo2Penguin
+---
+Hayden the Penguin: Honk!... I mean... hey!
+Hayden the Penguin: Those animals out there sure are scary.
+Hayden the Penguin: I'm not a fighter, so instead I just stay camped out here in this big snow dome.
+Hayden the Penguin: You sure seem like a brave fighter, so I'll leave it to you to take care of them.
+===
+
+title: TrappedPenguin
+---
+Aiden the Penguin: Thank god you're hear. I got trapped inside these ice rocks.
+Aiden the Penguin: I don't know what I would've done without you.
+Aiden the Penguin: Here, take these snowballs as a gift for getting me out! {GiveSnowballs()}
+Aiden the Penguin: Me trying to throw them is sadder than us penguins trying to fly.
+===
+
 
 title: SnowballPenguin
 ---
+
+<<declare $intro_played = false>>
+<<declare $got_snowballs = false>>
+
+<<if $intro_played == false && $got_snowballs == false>>
+    <<jump SnowballPenguinIntro>>
+<<elseif $got_snowballs == false>>
+    <<jump SnowballPenguinCheckChest>>
+<<elseif HasSnowballs()>>
+    <<jump SnowballPenguinObserve>>
+<<else>>
+    <<jump SnowballPenguinGiveSnowballs>>
+<<endif>>
+===
+
+title: SnowballPenguinIntro
+---
 Brayden the Penguin: I love throwing these snowballs!
-Brayden the Penguin: It really annoys some of the other guys.
+Brayden the Penguin: You'd be surpised the things you can break with a snowball.
+Brayden the Penguin: Sometimes I like to throw it at some of the other guys.
+Brayden the Penguin: They really get annoyed at for it. Maybe it's why I'm trapped here all by myself.
 Brayden the Penguin: Whatever. I think it's fun!
+<<set $intro_played = true>>
+===
+
+title: SnowballPenguinCheckChest
+---
+Brayden the Penguin: You should try to get some snowballs of your own.
+Brayden the Penguin: That shiny chest behind you might help you out.
+===
+
+title: SnowballPenguinObserve
+---
+Brayden the Penguin: Hey, nice lookin' snowballs.
+Brayden the Penguin: Throw those bad boys and see what you can hit.
+===
+
+title: SnowballPenguinGiveSnowballs
+---
+Brayden the Penguin: Looks like you ran out of snowballs.
+Brayden the Penguin: Don't worry, I got some extra right here, go ahead and take 'em!
+Brayden the Penguin: Just come back to me if you need anymore. {GiveSnowballs()}
 ===

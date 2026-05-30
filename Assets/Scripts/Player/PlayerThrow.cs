@@ -6,6 +6,7 @@ using System;
 public class PlayerThrow : MonoBehaviour
 {
     private PlayerMovement playerMovement;
+    private PlayerSound playerSound;
 
     [Header("Ammo")]
     public int snowballCount = 0;
@@ -18,6 +19,7 @@ public class PlayerThrow : MonoBehaviour
     [Header("Refs")]
     public GameObject snowballPrefab;
     public Transform throwOrigin; // assign an empty child transform at the penguin's hand
+    public bool gotSnowballs;
 
     public event Action<int> OnAmmoChanged; // (currentAmmo)
 
@@ -26,7 +28,14 @@ public class PlayerThrow : MonoBehaviour
 
     void Start()
     {
+        if(PlayerSaveData.hasData)
+        {
+            snowballCount = PlayerSaveData.snowballCount;
+            gotSnowballs = PlayerSaveData.gotSnowballs;
+        }
+
         playerMovement = GetComponent<PlayerMovement>();
+        playerSound = GetComponent<PlayerSound>();
         animator = GetComponentInChildren<Animator>();
     }
 
@@ -37,6 +46,8 @@ public class PlayerThrow : MonoBehaviour
         if (snowballCount <= 0) return;
         if (playerMovement.isDashing || playerMovement.isAttacking || playerMovement.isReceivingItem) return;
         if (!GameStateManager.Instance.IsPlayerInputEnabled) return;
+
+        playerSound.PlayGrunt();
 
         snowballCount--;
         OnAmmoChanged?.Invoke(snowballCount);

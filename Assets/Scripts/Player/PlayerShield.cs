@@ -30,6 +30,7 @@ public class PlayerShield : MonoBehaviour
     // Components
     private PlayerMovement playerMovement;
     private Animator animator;
+    private PlayerSound playerSound;
 
     private static readonly int ShieldUpHash = Animator.StringToHash("ShieldUp");
 
@@ -41,8 +42,9 @@ public class PlayerShield : MonoBehaviour
     {
         playerMovement = GetComponent<PlayerMovement>();
         animator = GetComponentInChildren<Animator>();
+        playerSound = GetComponent<PlayerSound>();
 
-        if (giveShieldOnStart)
+        if (giveShieldOnStart || (PlayerSaveData.hasData && PlayerSaveData.hasShield))
         {
             GotShield();
         }
@@ -117,6 +119,9 @@ public class PlayerShield : MonoBehaviour
         IsShielding = up;
         if (animator != null)
             animator.SetBool(ShieldUpHash, up);
+
+        if(up)
+            playerSound.PlayShieldUp();
     }
 
     // -------------------------------------------------------------------------
@@ -130,12 +135,15 @@ public class PlayerShield : MonoBehaviour
     /// </summary>
     public bool TryBlock(HitDirection hitDir)
     {
-        Debug.Log("Trying to block hit from direction: " + hitDir);
         if (!IsShielding)
             return false;
 
+        // Successfully blocked
         if (hitDir == HitDirection.Front)
         {
+
+            playerSound.PlayShieldBlock();
+
             // Spawn block effect at player's position
             if (shieldBlockEffectPrefab != null)
             {

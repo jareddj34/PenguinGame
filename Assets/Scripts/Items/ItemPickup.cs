@@ -7,7 +7,7 @@ public class ItemPickup : WorldItem
 
     protected override void OnPickup()
     {   
-        GameEvents.Instance.ItemPickedUp(itemData);
+        // GameEvents.Instance.ItemPickedUp(itemData); Already called in base.Interact()
 
         OnItemPickupEvent?.Invoke();
 

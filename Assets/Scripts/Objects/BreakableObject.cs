@@ -30,7 +30,8 @@ public class BreakableObject : MonoBehaviour, IHittable
             Destroy(effect, 2f); // Destroy the effect after 2 seconds
         }
 
-        if (objectsToSpawn != null && spawnOnBreak)
+        bool spawnObject = Random.value < 0.5f;
+        if (objectsToSpawn != null && spawnOnBreak && spawnObject)
         {
             GameObject selectedObject = objectsToSpawn[Random.Range(0, objectsToSpawn.Length)];
 
