@@ -104,6 +104,21 @@ public class EnemyAI : MonoBehaviour
             EnterPatrol();
 
         hitbox.GetComponent<EnemyHitbox>().damage = attackDamage;
+
+        GameStateManager.OnStateChanged += OnGameStateChanged;
+    }
+
+    void OnDestroy()
+    {
+        GameStateManager.OnStateChanged -= OnGameStateChanged;
+    }
+
+    // For if the enemy is in a certain state, freeze the enemy
+    void OnGameStateChanged(GameState newState)
+    {
+        bool freeze = newState == GameState.ReceivingItem || newState == GameState.Dialogue || newState == GameState.Dead;
+        agent.isStopped = freeze;
+        if (animator != null) animator.speed = freeze ? 0f : 1f;
     }
 
     // ── Detection — forward half-sphere ───────────────────────────────────
@@ -130,7 +145,9 @@ public class EnemyAI : MonoBehaviour
     {
         if (player == null) return;
 
-        if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameState.Dead)
+        if (GameStateManager.Instance != null && 
+            (GameStateManager.Instance.CurrentState == GameState.Dead ||
+            GameStateManager.Instance.CurrentState == GameState.ReceivingItem))
             return;
 
         float distToPlayer  = Vector3.Distance(transform.position, player.position);
@@ -140,7 +157,7 @@ public class EnemyAI : MonoBehaviour
         switch (currentState)
         {
             case State.Idle:
-                if (playerVisible) { EnterChase(); break; }
+                if (playerVisible && PlayerInWanderZone()) { EnterChase(); break; }
                 wanderWaitTimer -= Time.deltaTime;
                 if (wanderWaitTimer <= 0f)
                 {
@@ -152,19 +169,19 @@ public class EnemyAI : MonoBehaviour
                 break;
 
             case State.Wander:
-                if (playerVisible) { EnterChase(); break; }
+                if (playerVisible && PlayerInWanderZone()) { EnterChase(); break; }
                 if (!agent.pathPending && agent.remainingDistance <= arrivedDistance)
                     EnterIdle();
                 break;
 
             case State.Patrol:
-                if (playerVisible) { EnterChase(); break; }
+                if (playerVisible && PlayerInWanderZone()) { EnterChase(); break; }
                 UpdatePatrol();
                 break;
 
             case State.Chase:
                 // Lost sight — return to idle/patrol
-                if (!playerVisible && distToPlayer > detectionRadius)
+                if (!playerVisible && distToPlayer > detectionRadius || (wanderZone != null && !wanderZone.bounds.Contains(player.position)))
                 {
                     if (behaviourMode == BehaviourMode.Patrol)
                         EnterPatrol();
@@ -176,6 +193,12 @@ public class EnemyAI : MonoBehaviour
                 break;
 
             case State.Attack:
+                if (wanderZone != null && !wanderZone.bounds.Contains(player.position))
+                {
+                    animator.SetBool("IsAttacking", false);
+                    EnterIdle();
+                    break;
+                }
                 if (distToPlayer > attackRadius) {
                     EnterChase();
                     animator.SetBool("IsAttacking", false);
@@ -326,6 +349,8 @@ public class EnemyAI : MonoBehaviour
     {
         if (!doStaggerOnBlock) return;
 
+        Debug.Log("Enemy staggered");
+
         currentState = State.Stagger;
         staggerTimer = staggerDuration;
         agent.speed  = 0f;
@@ -378,6 +403,12 @@ public class EnemyAI : MonoBehaviour
         }
         result = transform.position;
         return false;
+    }
+
+    bool PlayerInWanderZone()
+    {
+        if (wanderZone == null) return true; // No zone = no restriction
+        return wanderZone.bounds.Contains(player.position);
     }
 
     // ── Attack logic ──────────────────────────────────────────────────────

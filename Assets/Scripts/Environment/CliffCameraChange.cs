@@ -5,11 +5,16 @@ public class CliffCameraChange : MonoBehaviour
 
     public CameraController camController;
 
+    public bool doNoTrackingVersion = false;
+
     void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
-        camController.ChangeToCliffCamera();
+        if (doNoTrackingVersion)
+            camController.ChangeToCliffCameraNoTracking();
+        else
+            camController.ChangeToCliffCamera();
 
     }
 
@@ -17,6 +22,9 @@ public class CliffCameraChange : MonoBehaviour
     {
         if(!other.CompareTag("Player")) return;
 
-        camController.ChangeFromCliffCamera();
+        if (doNoTrackingVersion)
+            camController.ChangeFromCliffCameraNoTracking();
+        else
+            camController.ChangeFromCliffCamera();
     }
 }

@@ -9,6 +9,7 @@ public enum GameState
     Dialogue,
     ReceivingItem,
     Dead,
+    Paused,
 }
 
 public class GameStateManager : MonoBehaviour
@@ -102,6 +103,14 @@ public class GameStateManager : MonoBehaviour
         SetState(GameState.Dead);
     }
 
+    public void TogglePause()
+    {
+        if (CurrentState == GameState.Normal)
+            SetState(GameState.Paused);
+        else if (CurrentState == GameState.Paused)
+            SetState(GameState.Normal);
+    }
+
     private void ApplyState(GameState state)
     {
         switch (state)
@@ -110,22 +119,32 @@ public class GameStateManager : MonoBehaviour
                 if (playerMovement != null) playerMovement.enabled = true;
                 if (playerAttack   != null) playerAttack.enabled   = true;
                 IsPlayerInputEnabled = true;
+                // Time.timeScale = 1f;
                 break;
             case GameState.Dialogue:
                 if (playerMovement != null) playerMovement.enabled = false;
                 if (playerAttack   != null) playerAttack.enabled   = false;
                 IsPlayerInputEnabled = false;
+                // Time.timeScale = 1f;
                 break;
             case GameState.ReceivingItem:
                 // PlayerMovement stays enabled so animation events can still fire
                 if (playerMovement != null) playerMovement.enabled = true;
                 if (playerAttack   != null) playerAttack.enabled   = false;
                 IsPlayerInputEnabled = false;
+                // Time.timeScale = 1f;
                 break;
             case GameState.Dead:
                 if (playerMovement != null) playerMovement.enabled = false;
                 if (playerAttack   != null) playerAttack.enabled   = false;
                 IsPlayerInputEnabled = false;
+                // Time.timeScale = 1f;
+                break;
+            case GameState.Paused:
+                if (playerMovement != null) playerMovement.enabled = false;
+                if (playerAttack   != null) playerAttack.enabled   = false;
+                IsPlayerInputEnabled = false;
+                // Time.timeScale = 0f;
                 break;
         }
     }

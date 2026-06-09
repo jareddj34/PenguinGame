@@ -15,6 +15,14 @@ public class OctopusHealth : MonoBehaviour, IHittable
     [SerializeField] AudioClip hitSound;
     [SerializeField] AudioClip deathSound;
 
+    [Header("Refs")]
+    public GameObject deathVFX;
+    public GameObject deathVFXPos;
+
+    [Header("ItemDrop")]
+    [SerializeField] GameObject[] itemsToDrop;
+    [SerializeField] float dropChance = 0.25f;
+
     float currentHealth;
     bool  isDying;
     bool  isKnockedBack;
@@ -64,7 +72,7 @@ public class OctopusHealth : MonoBehaviour, IHittable
         }
 
         if (agent != null && !isKnockedBack)
-            StartCoroutine(KnockbackCoroutine(knockbackDirection, knockbackForce*2.5f, isDying));
+            StartCoroutine(KnockbackCoroutine(knockbackDirection, knockbackForce*1.5f, isDying));
         else if (isDying)
             Die();
     }
@@ -103,7 +111,32 @@ public class OctopusHealth : MonoBehaviour, IHittable
             StopCoroutine(m_FlashCoroutine);
         SetMeshColor(Color.red);
 
+        StartCoroutine(SpawnSmokeEffect());
+        StartCoroutine(DropItem());
+
         Destroy(gameObject, 0.5f);
+    }
+
+    IEnumerator SpawnSmokeEffect()
+    {
+
+        yield return new WaitForSeconds(0.4f);
+
+        GameObject effect = Instantiate(deathVFX, deathVFXPos.transform.position, Quaternion.identity);
+        Destroy(effect, 2f);
+    }
+
+    IEnumerator DropItem()
+    {
+        yield return new WaitForSeconds(0.4f); // Delay to sync with death animation
+
+        if (itemsToDrop.Length > 0 && Random.value < dropChance)
+        {
+            int index = Random.Range(0, itemsToDrop.Length);
+            Vector3 spawnPos = transform.position;
+            spawnPos.y = 0.4f; // Adjust Y position if needed
+            Instantiate(itemsToDrop[index], spawnPos, Quaternion.identity);
+        }
     }
 
     public void FlashRed(float duration = 0.5f)

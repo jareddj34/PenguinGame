@@ -53,5 +53,10 @@ public class PlayerAnimationEvents : MonoBehaviour
         GameEvents.Instance?.PlayerDied();
     }
 
+    public void PlayDashSound()
+    {
+        playerSound.PlayDash();
+    }
+
 
 }

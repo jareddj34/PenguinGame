@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Shield
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Shield
-  itemSprite: {fileID: 1739330235, guid: f32297f963d05814ebe72c3655222805, type: 3}
+  itemSprite: {fileID: 21300000, guid: 389ea4481b751d6419b73524abe5d759, type: 3}
   yarnNodeName: Shield

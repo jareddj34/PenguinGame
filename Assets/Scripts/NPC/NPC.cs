@@ -65,6 +65,7 @@ public class NPC : InteractableBase
 
         StartCoroutine(FacePlayerCoroutine(GameStateManager.Instance.PlayerTransform));
 
+        GetComponent<YarnStatePersistence>()?.LoadIntoYarn();
         dialogueRunner.StartDialogue(yarnNodeName);
     }
 

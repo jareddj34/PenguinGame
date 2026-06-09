@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Snowball
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Snowball
-  itemSprite: {fileID: -1374712658, guid: f32297f963d05814ebe72c3655222805, type: 3}
+  itemSprite: {fileID: 21300000, guid: ce05214932bddc949878a5f410ed3847, type: 3}
   yarnNodeName: Snowball

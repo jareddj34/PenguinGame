@@ -23,6 +23,19 @@ public class OctopusAI : MonoBehaviour
     [SerializeField] float arrivedDistance = 0.4f;
     [SerializeField] BoxCollider wanderZone;
 
+    // ── Behaviour Mode ────────────────────────────────────────────────────
+    public enum BehaviourMode { Wander, Patrol }
+    [Header("Behaviour Mode")]
+    [Tooltip("Wander: roam randomly near spawn.  Patrol: cycle through preset waypoints.")]
+    [SerializeField] BehaviourMode behaviourMode = BehaviourMode.Wander;
+
+    // ── Patrol ────────────────────────────────────────────────────────────
+    [Header("Patrol")]
+    [Tooltip("Assign world-space Transform waypoints in order. Only used in Patrol mode.")]
+    [SerializeField] Transform[] patrolPoints;
+    [Tooltip("Seconds the enemy pauses at each waypoint before moving on.")]
+    [SerializeField] float patrolWaitTime = 1.5f;
+
     // ── Shooting ──────────────────────────────────────────────────────────
     [Header("Shooting")]
     [SerializeField] GameObject projectilePrefab; // Assign your snowball-like prefab
@@ -41,7 +54,7 @@ public class OctopusAI : MonoBehaviour
     public AudioClip   shootSound;
 
     // ── State machine ─────────────────────────────────────────────────────
-    enum State { Idle, Wander, Alert, Shoot, Stagger }
+    enum State { Idle, Wander, Patrol, Alert, Shoot, Stagger }
     State currentState = State.Idle;
 
     // ── Internal refs ─────────────────────────────────────────────────────
@@ -52,6 +65,11 @@ public class OctopusAI : MonoBehaviour
     float        wanderWaitTimer;
     float        shootTimer = 0f;
     float        staggerTimer = 0f;
+
+    // Patrol bookkeeping
+    int   patrolIndex     = 0;
+    float patrolWaitTimer = 0f;
+    bool  waitingAtPoint  = false;
 
     public bool playerVisible { get; private set; }
 
@@ -73,6 +91,26 @@ public class OctopusAI : MonoBehaviour
             player = playerObj.transform;
         else
             Debug.LogWarning("[OctopusAI] No GameObject tagged 'Player' found.");
+
+         // Kick off patrol immediately if that mode is selected
+        if (behaviourMode == BehaviourMode.Patrol && patrolPoints != null && patrolPoints.Length > 0)
+            EnterPatrol();
+        
+
+        GameStateManager.OnStateChanged += OnGameStateChanged;
+    }
+
+    void OnDestroy()
+    {
+        GameStateManager.OnStateChanged -= OnGameStateChanged;
+    }
+
+    // For if the enemy is in a certain state, freeze the enemy
+    void OnGameStateChanged(GameState newState)
+    {
+        bool freeze = newState == GameState.ReceivingItem || newState == GameState.Dialogue || newState == GameState.Dead;
+        agent.isStopped = freeze;
+        if (animator != null) animator.speed = freeze ? 0f : 1f;
     }
 
     // ── Detection — forward half-sphere ──────────────────────────────────
@@ -99,7 +137,9 @@ public class OctopusAI : MonoBehaviour
     {
         if (player == null) return;
 
-        if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentState == GameState.Dead)
+        if (GameStateManager.Instance != null && 
+            (GameStateManager.Instance.CurrentState == GameState.Dead ||
+            GameStateManager.Instance.CurrentState == GameState.ReceivingItem))
             return;
 
         float distToPlayer = Vector3.Distance(transform.position, player.position);
@@ -109,23 +149,35 @@ public class OctopusAI : MonoBehaviour
         switch (currentState)
         {
             case State.Idle:
-                if (playerVisible) { EnterAlert(); break; }
+                if (playerVisible && PlayerInWanderZone()) { EnterAlert(); break; }
                 wanderWaitTimer -= Time.deltaTime;
-                if (wanderWaitTimer <= 0f)
-                    EnterWander();
+                if (wanderWaitTimer <= 0f){
+                    if (behaviourMode == BehaviourMode.Wander)
+                        EnterWander();
+                    else
+                        EnterPatrol();
+                }
                 break;
 
             case State.Wander:
-                if (playerVisible) { EnterAlert(); break; }
+                if (playerVisible && PlayerInWanderZone()) { EnterAlert(); break; }
                 if (!agent.pathPending && agent.remainingDistance <= arrivedDistance)
                     EnterIdle();
                 break;
 
+            case State.Patrol:
+                if (playerVisible && PlayerInWanderZone()) { EnterAlert(); break; }
+                UpdatePatrol();
+                break;
+
             case State.Alert:
                 // Lost sight
-                if (!playerVisible && distToPlayer > detectionRadius)
+                if (!playerVisible && distToPlayer > detectionRadius || (wanderZone != null && !wanderZone.bounds.Contains(player.position)))
                 {
-                    EnterIdle();
+                    // if (behaviourMode == BehaviourMode.Patrol)
+                    //     EnterPatrol();
+                    // else
+                        EnterIdle();
                     break;
                 }
                 if (PlayerInShootRange())
@@ -134,7 +186,7 @@ public class OctopusAI : MonoBehaviour
 
             case State.Shoot:
                 // Player left range — go back to alert (will close no distance, just face them)
-                if (!PlayerInShootRange() || (!playerVisible && distToPlayer > detectionRadius))
+                if (!PlayerInShootRange() || (!playerVisible && distToPlayer > detectionRadius) || (wanderZone != null && !wanderZone.bounds.Contains(player.position)))
                 {
                     EnterAlert();
                     break;
@@ -147,6 +199,8 @@ public class OctopusAI : MonoBehaviour
                 {
                     if (playerVisible || distToPlayer <= detectionRadius)
                         EnterAlert();
+                    else if (behaviourMode == BehaviourMode.Patrol)
+                        EnterPatrol();
                     else
                         EnterIdle();
                 }
@@ -159,6 +213,10 @@ public class OctopusAI : MonoBehaviour
             case State.Alert:
                 // Slowly face the player while stalking — no movement
                 FaceTarget(player.position);
+                break;
+            
+            case State.Patrol:
+                // Movement handled inside UpdatePatrol()
                 break;
 
             case State.Shoot:
@@ -195,6 +253,47 @@ public class OctopusAI : MonoBehaviour
         else
         {
             wanderWaitTimer = Random.Range(minWaitTime, maxWaitTime);
+        }
+    }
+
+    void EnterPatrol()
+    {
+        if (patrolPoints == null || patrolPoints.Length == 0)
+        {
+            // Nothing to patrol — fall back to idle
+            EnterIdle();
+            return;
+        }
+
+        currentState   = State.Patrol;
+        agent.speed    = wanderSpeed;
+        waitingAtPoint = false;
+        agent.SetDestination(patrolPoints[patrolIndex].position);
+    }
+
+    /// <summary>
+    /// Called every frame while in the Patrol state.
+    /// Waits at the current waypoint, then advances to the next in a loop.
+    /// </summary>
+    void UpdatePatrol()
+    {
+        if (patrolPoints == null || patrolPoints.Length == 0) return;
+
+        if (waitingAtPoint)
+        {
+            patrolWaitTimer -= Time.deltaTime;
+            if (patrolWaitTimer <= 0f)
+            {
+                waitingAtPoint = false;
+                patrolIndex    = (patrolIndex + 1) % patrolPoints.Length;
+                agent.SetDestination(patrolPoints[patrolIndex].position);
+            }
+        }
+        else if (!agent.pathPending && agent.remainingDistance <= arrivedDistance)
+        {
+            // Arrived — start waiting
+            waitingAtPoint  = true;
+            patrolWaitTimer = patrolWaitTime;
         }
     }
 
@@ -316,6 +415,12 @@ public class OctopusAI : MonoBehaviour
         return false;
     }
 
+    bool PlayerInWanderZone()
+    {
+        if (wanderZone == null) return true; // No zone = no restriction
+        return wanderZone.bounds.Contains(player.position);
+    }
+
     // ── Public hooks called by EnemyHealth ────────────────────────────────
 
     public void HitAnimation()
@@ -356,10 +461,27 @@ public class OctopusAI : MonoBehaviour
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, shootRange);
 
-        // Wander boundary (white)
-        Gizmos.color = Color.white;
-        Vector3 origin = Application.isPlaying ? wanderOrigin : transform.position;
-        Gizmos.DrawWireSphere(origin, wanderRadius);
+        if(behaviourMode == BehaviourMode.Wander)
+        {
+            // Wander boundary (white)
+            Gizmos.color = Color.white;
+            Vector3 origin = Application.isPlaying ? wanderOrigin : transform.position;
+            Gizmos.DrawWireSphere(origin, wanderRadius);
+        }
+        else if (behaviourMode == BehaviourMode.Patrol && patrolPoints != null)
+        {
+            // Patrol waypoints + connecting lines (green)
+            Gizmos.color = Color.green;
+            for (int i = 0; i < patrolPoints.Length; i++)
+            {
+                if (patrolPoints[i] == null) continue;
+                Gizmos.DrawSphere(patrolPoints[i].position, 0.3f);
+                int next = (i + 1) % patrolPoints.Length;
+                if (patrolPoints[next] != null)
+                    Gizmos.DrawLine(patrolPoints[i].position, patrolPoints[next].position);
+            }
+        }
+        
     }
 
     void DrawHalfCircleGizmo(Vector3 center, Vector3 forward, float radius)

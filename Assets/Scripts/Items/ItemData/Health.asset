@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Health
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Health
-  itemSprite: {fileID: 440341602, guid: f32297f963d05814ebe72c3655222805, type: 3}
+  itemSprite: {fileID: 21300000, guid: 4a4f3c18810665a449b2abaa31614702, type: 3}
   yarnNodeName: Health

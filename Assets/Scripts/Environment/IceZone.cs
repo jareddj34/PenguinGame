@@ -11,15 +11,29 @@ public class IceZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        PlayerMovement pm = other.GetComponent<PlayerMovement>();
-        if (pm != null)
-            pm.EnterIce();
+        if(other.CompareTag("Player"))
+        {
+            PlayerMovement pm = other.GetComponent<PlayerMovement>();
+            if (pm != null)
+                pm.EnterIce();
+            
+            PlayerSound ps = other.GetComponent<PlayerSound>();
+            if (ps != null)
+                ps.StartIceSlide();
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        PlayerMovement pm = other.GetComponent<PlayerMovement>();
-        if (pm != null)
-            pm.ExitIce();
+        if(other.CompareTag("Player"))
+        {
+            PlayerMovement pm = other.GetComponent<PlayerMovement>();
+            if (pm != null)
+                pm.ExitIce();
+
+            PlayerSound ps = other.GetComponent<PlayerSound>();
+            if (ps != null)
+                ps.StopIceSlide();
+        }
     }
 }

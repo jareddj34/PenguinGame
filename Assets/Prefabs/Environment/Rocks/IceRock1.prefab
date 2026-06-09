@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4570160455197621002}
   - component: {fileID: 5005715133080803645}
   - component: {fileID: -6967454179396329539}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: IceRock1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

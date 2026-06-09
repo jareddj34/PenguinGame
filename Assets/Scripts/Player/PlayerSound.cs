@@ -17,6 +17,12 @@ public class PlayerSound : MonoBehaviour
     public List<AudioClip> iceFS;
     [Header("Grass Footstep Sounds")]
     public List<AudioClip> grassFS;
+
+    [Header("Other Ground Sounds")]
+    public AudioClip iceSlideSound;
+    private bool isOnIce = false;
+    public AudioClip dashSound;
+
     [Header("Ground Detection")]
     public LayerMask groundLayer;
 
@@ -146,6 +152,8 @@ public class PlayerSound : MonoBehaviour
 
     public void PlayFootstep()
     {
+        if (isOnIce) return; // Don't play regular footstep sounds if we're on ice
+
         SurfaceType currentSurface = GetCurrentSurface();
         List<AudioClip> footstepClips = GetFootstepClipsForSurface(currentSurface);
 
@@ -162,6 +170,8 @@ public class PlayerSound : MonoBehaviour
     
     public void PlayShieldFootstep()
     {
+        if (isOnIce) return;
+
         SurfaceType currentSurface = GetCurrentSurface();
         List<AudioClip> footstepClips = GetFootstepClipsForSurface(currentSurface);
 
@@ -173,6 +183,31 @@ public class PlayerSound : MonoBehaviour
             footstepAudioSource.volume = Random.Range(0.4f, 0.6f); // Add some random volume variation
             footstepAudioSource.pitch = Random.Range(0.95f, 1.05f); // Add some random pitch variation
             footstepAudioSource.Play();
+        }
+    }
+
+    public void StartIceSlide()
+    {
+        if (footstepAudioSource.clip == iceSlideSound && footstepAudioSource.isPlaying) return;
+        isOnIce = true;
+        footstepAudioSource.clip = iceSlideSound;
+        footstepAudioSource.loop = true;
+        footstepAudioSource.Play();
+    }
+
+    public void StopIceSlide()
+    {
+        if (footstepAudioSource.clip != iceSlideSound) return;
+        isOnIce = false;
+        footstepAudioSource.loop = false;
+        footstepAudioSource.Stop();
+    }
+
+    public void PlayDash()
+    {
+        if (actionAudioSource != null && dashSound != null)
+        {
+            actionAudioSource.PlayOneShot(dashSound);
         }
     }
     // --------------------------------------

@@ -94,6 +94,7 @@ public class ThrowingPenguinNPC : InteractableBase
         GameStateManager.Instance.FacePlayer(transform);
         StartCoroutine(FacePlayerCoroutine(GameStateManager.Instance.PlayerTransform));
 
+        GetComponent<YarnStatePersistence>()?.LoadIntoYarn();
         dialogueRunner.StartDialogue(yarnNodeName);
     }
 

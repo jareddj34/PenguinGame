@@ -11,6 +11,8 @@ public class InteractionPrompt : MonoBehaviour
 
     private Coroutine _hideCoroutine;
 
+    public GameObject tutorialPanel;
+
     private void Start()
     {
         GameEvents.Instance.OnPromptShow += Show;
@@ -51,4 +53,6 @@ public class InteractionPrompt : MonoBehaviour
         promptPanel.SetActive(false);
         _hideCoroutine = null;
     }
+
+    
 }

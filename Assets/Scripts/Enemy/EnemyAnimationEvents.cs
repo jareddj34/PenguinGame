@@ -22,4 +22,19 @@ public class EnemyAnimationEvents : MonoBehaviour
             octoAI.ShootProjectile();
         }
     }
+
+    // public void SpawnSmokeEffect()
+    // {
+    //     EnemyHealth enemyHealth = this.GetComponentInParent<EnemyHealth>();
+    //     if(enemyHealth != null)
+    //     {
+    //         enemyHealth.SpawnSmokeEffect();
+    //     }
+
+    //     OctopusHealth octoHealth = this.GetComponentInParent<OctopusHealth>();
+    //     if(octoHealth != null)
+    //     {
+    //         octoHealth.SpawnSmokeEffect();
+    //     }
+    // }
 }

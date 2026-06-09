@@ -16,6 +16,14 @@ public class EnemyHealth : MonoBehaviour, IHittable
     [SerializeField] AudioClip hitSound;
     [SerializeField] AudioClip deathSound;
 
+    [Header("Refs")]
+    public GameObject deathVFX;
+    public GameObject deathVFXPos;
+
+    [Header("ItemDrop")]
+    [SerializeField] GameObject[] itemsToDrop;
+    public float dropChance = 0.25f;
+
     float currentHealth;
     bool isDying;
     NavMeshAgent agent;
@@ -118,10 +126,32 @@ public class EnemyHealth : MonoBehaviour, IHittable
             StopCoroutine(m_FlashCoroutine); // cancel the flash so it stays red
         SetMeshColor(Color.red);             // lock it red on death
 
-        // Hook for death effects (particles, sounds) here
-        // e.g. Instantiate(deathVFX, transform.position, Quaternion.identity);
+        StartCoroutine(SpawnSmokeEffect());
+        StartCoroutine(DropItem());
 
         Destroy(gameObject, 0.5f);
+    }
+
+    IEnumerator SpawnSmokeEffect()
+    {
+
+        yield return new WaitForSeconds(0.4f);
+
+        GameObject effect = Instantiate(deathVFX, deathVFXPos.transform.position, Quaternion.identity);
+        Destroy(effect, 2f);
+    }
+
+    IEnumerator DropItem()
+    {
+        yield return new WaitForSeconds(0.4f); // Delay to sync with death animation
+
+        if (itemsToDrop.Length > 0 && Random.value < dropChance)
+        {
+            int index = Random.Range(0, itemsToDrop.Length);
+            Vector3 spawnPos = transform.position;
+            spawnPos.y = 0.4f; // Adjust Y position if needed
+            Instantiate(itemsToDrop[index], spawnPos, Quaternion.identity);
+        }
     }
 
 

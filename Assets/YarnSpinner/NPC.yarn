@@ -1,9 +1,27 @@
-﻿title: SwordPenguin
+title: SwordPenguin
+---
+
+<<declare $got_sword = false>>
+
+<<if $got_sword == false>>
+    <<jump SwordPenguin1>>
+<<else>>
+    <<jump SwordPenguin2>>
+<<endif>>
+===
+
+title: SwordPenguin1
 ---
 Caden the Penguin: Hey there traveler!
 Caden the Penguin: If you are going over there, you're gonna wanna have something to defend yourself with.
 Caden the Penguin: Them seals eat guys like us for breakfast.
-Caden the Penguin: Take that SWORD over there to fight back if they give you a hard time.
+Caden the Penguin: And those foxes sure are mischievous.
+Caden the Penguin: If I were you, I'd find an actual weapon to defend yourself with.
+===
+title: SwordPenguin2
+---
+Caden the Penguin: Wow! That's a cool looking sword you got there!
+Caden the Penguin: Those animals got nothing on you now.
 Caden the Penguin: Good luck!
 ===
 
@@ -36,12 +54,37 @@ Hayden the Penguin: I'm not a fighter, so instead I just stay camped out here in
 Hayden the Penguin: You sure seem like a brave fighter, so I'll leave it to you to take care of them.
 ===
 
+title: Igloo3Penguin
+---
+Jared the Penguin: You made it to the end of the demo!
+Jared the Penguin: Thanks for playing it! I heard the developer worked really hard on this world.
+Jared the Penguin: Hopefully there will be more to come in the future!
+===
+
 title: TrappedPenguin
+---
+<<declare $gave_snowballs = false>>
+
+<<if $gave_snowballs == false>>
+    <<jump TrappedPenguin1>>
+<<else>>
+    <<jump TrappedPenguin2>>
+<<endif>>
+===
+
+
+title: TrappedPenguin1
 ---
 Aiden the Penguin: Thank god you're hear. I got trapped inside these ice rocks.
 Aiden the Penguin: I don't know what I would've done without you.
 Aiden the Penguin: Here, take these snowballs as a gift for getting me out! {GiveSnowballs()}
 Aiden the Penguin: Me trying to throw them is sadder than us penguins trying to fly.
+<<set $gave_snowballs = true>>
+===
+
+title: TrappedPenguin2
+---
+Aiden the Penguin: Now that I'm free, I can finally expore this beautiful world.
 ===
 
 

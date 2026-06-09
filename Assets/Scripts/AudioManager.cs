@@ -40,7 +40,17 @@ public class AudioManager : MonoBehaviour
                 musicSource.Play();
                 break;
             
-            case "Interior":
+            case "Igloo1":
+                musicSource.clip = interior;
+                musicSource.Play();
+                break;
+            
+            case "Igloo2":
+                musicSource.clip = interior;
+                musicSource.Play();
+                break;
+
+            case "Igloo3":
                 musicSource.clip = interior;
                 musicSource.Play();
                 break;

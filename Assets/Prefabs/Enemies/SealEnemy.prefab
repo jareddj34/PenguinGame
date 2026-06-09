@@ -166,6 +166,12 @@ MonoBehaviour:
   audioSource: {fileID: 3071396652370167391}
   hitSound: {fileID: 8300000, guid: 13f9d30362839c242bccd962e7faaca8, type: 3}
   deathSound: {fileID: 8300000, guid: 13f9d30362839c242bccd962e7faaca8, type: 3}
+  deathVFX: {fileID: 155663590641559560, guid: bbdf42b178d0d924fb0734acf6cb3c2d, type: 3}
+  deathVFXPos: {fileID: 414782760176303071}
+  itemsToDrop:
+  - {fileID: 1869526811495230124, guid: b868be309d279ea438cf4796b166dd42, type: 3}
+  - {fileID: 7903047720310797813, guid: 75dc2e47d9ba2c143b3a15aea6628133, type: 3}
+  dropChance: 0.25
 --- !u!114 &6474821255168435676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,7 +188,7 @@ MonoBehaviour:
   attackRadius: 3.5
   playerLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   chaseSpeed: 3.5
   wanderSpeed: 1.5
   behaviourMode: 1
@@ -190,6 +196,7 @@ MonoBehaviour:
   minWaitTime: 2
   maxWaitTime: 5
   arrivedDistance: 0.4
+  wanderZone: {fileID: 0}
   patrolPoints: []
   patrolWaitTime: 1.5
   attackDamage: 2
@@ -512,6 +519,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 3188981696396762239}
   m_SourcePrefab: {fileID: 100100000, guid: 324ac4d613b25c74b95f030ec880f039, type: 3}
+--- !u!1 &414782760176303071 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1193037695340708931, guid: 324ac4d613b25c74b95f030ec880f039, type: 3}
+  m_PrefabInstance: {fileID: 1535480974109622172}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1352670550749730935 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 324ac4d613b25c74b95f030ec880f039, type: 3}
@@ -557,3 +569,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationEvents
   enemyAI: {fileID: 6474821255168435676}
+  octoAI: {fileID: 0}

@@ -7,6 +7,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private CinemachineCamera dialogueCamera;
     [SerializeField] private CinemachineCamera itemGotCamera;
     public CinemachineCamera cliffCamera;
+    public CinemachineCamera cliffCamerNoTracking;
 
     // -------------------------------------------------------------------------
     // Unity Lifecycle
@@ -26,6 +27,14 @@ public class CameraController : MonoBehaviour
     // State Handling
     // -------------------------------------------------------------------------
 
+    private bool _suppressNextDialogueCamera;
+
+    /// <summary>
+    /// Call before EnterDialogue() to skip the dialogue camera for that one
+    /// conversation (e.g. blocker NPCs that are far from the player).
+    /// </summary>
+    public void SuppressNextDialogueCamera() => _suppressNextDialogueCamera = true;
+
     private void HandleStateChanged(GameState newState)
     {
         if (dialogueCamera == null) return;
@@ -33,7 +42,14 @@ public class CameraController : MonoBehaviour
         // Enable the dialogue cam when talking; disable it for everything else.
         // CinemachineBrain blends to/from it automatically.
         if(newState == GameState.Dialogue) {
-            dialogueCamera.gameObject.SetActive(true);
+            if (_suppressNextDialogueCamera)
+            {
+                _suppressNextDialogueCamera = false;
+            }
+            else
+            {
+                dialogueCamera.gameObject.SetActive(true);
+            }
             itemGotCamera.gameObject.SetActive(false);
         }
         else if (newState == GameState.ReceivingItem) {
@@ -54,5 +70,15 @@ public class CameraController : MonoBehaviour
     public void ChangeFromCliffCamera()
     {
         cliffCamera.gameObject.SetActive(false);
+    }
+
+    public void ChangeToCliffCameraNoTracking()
+    {
+        cliffCamerNoTracking.gameObject.SetActive(true);
+    }
+
+    public void ChangeFromCliffCameraNoTracking()
+    {
+        cliffCamerNoTracking.gameObject.SetActive(false);
     }
 }

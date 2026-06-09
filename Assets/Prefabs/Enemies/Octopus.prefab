@@ -76,6 +76,12 @@ MonoBehaviour:
   audioSource: {fileID: 68688348211269318}
   hitSound: {fileID: 8300000, guid: c190ba5802790e24b970887b3bda96da, type: 3}
   deathSound: {fileID: 8300000, guid: c190ba5802790e24b970887b3bda96da, type: 3}
+  deathVFX: {fileID: 155663590641559560, guid: bbdf42b178d0d924fb0734acf6cb3c2d, type: 3}
+  deathVFXPos: {fileID: 878879292171312742}
+  itemsToDrop:
+  - {fileID: 1869526811495230124, guid: b868be309d279ea438cf4796b166dd42, type: 3}
+  - {fileID: 7903047720310797813, guid: 75dc2e47d9ba2c143b3a15aea6628133, type: 3}
+  dropChance: 0.25
 --- !u!114 &8545648432633225537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97,6 +103,10 @@ MonoBehaviour:
   minWaitTime: 2
   maxWaitTime: 5
   arrivedDistance: 0.4
+  wanderZone: {fileID: 0}
+  behaviourMode: 0
+  patrolPoints: []
+  patrolWaitTime: 1.5
   projectilePrefab: {fileID: 8918747652162382801, guid: ea3f7461043065d4ea0073bf8cc16124, type: 3}
   firePoint: {fileID: 662152006047148435}
   shootCooldown: 2.5
@@ -712,6 +722,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 2442553563658742188}
   m_SourcePrefab: {fileID: 100100000, guid: 6ba135380e5d17d4bafbbe26107f5fc3, type: 3}
+--- !u!1 &878879292171312742 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1271685211374851842, guid: 6ba135380e5d17d4bafbbe26107f5fc3, type: 3}
+  m_PrefabInstance: {fileID: 2132321352593230180}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1249448905549149237 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 6ba135380e5d17d4bafbbe26107f5fc3, type: 3}

@@ -35,8 +35,13 @@ public class BreakableObject : MonoBehaviour, IHittable
         {
             GameObject selectedObject = objectsToSpawn[Random.Range(0, objectsToSpawn.Length)];
 
-            Instantiate(selectedObject, transform.position, transform.rotation);
+            Vector3 spawnPos = transform.position;
+            spawnPos.y = .4f;
+            Quaternion rightRot = Quaternion.Euler(0,0,0);
+            Instantiate(selectedObject, spawnPos, rightRot);
         }
+
+        this.GetComponent<StatefulObject>()?.MarkDone();
 
         Destroy(gameObject);
     }

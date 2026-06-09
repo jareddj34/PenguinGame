@@ -27,7 +27,8 @@ public class ItemPopup : MonoBehaviour
 
     public void Hide()
     {
-        animator.SetTrigger("End");
+        if (animator.runtimeAnimatorController != null)
+            animator.SetTrigger("End");
         StartCoroutine(HideAfterAnimation());
     }
     IEnumerator HideAfterAnimation()

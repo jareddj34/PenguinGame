@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Yarn.Unity;
+using System.Collections;
 
 public class GameEvents : MonoBehaviour
 {
@@ -32,8 +33,10 @@ public class GameEvents : MonoBehaviour
         // DontDestroyOnLoad(gameObject);
     }
 
-    void Start()
+    IEnumerator Start()
     {
+        yield return null; // Wait a frame to ensure all objects are initialized
+
         playerMovement = FindFirstObjectByType<PlayerMovement>();
         playerAttack = FindFirstObjectByType<PlayerAttack>();
         playerHealth = FindFirstObjectByType<PlayerHealth>();
@@ -45,12 +48,14 @@ public class GameEvents : MonoBehaviour
         audioManager = FindFirstObjectByType<AudioManager>();
 
         dialogueRunner = FindFirstObjectByType<DialogueRunner>();
-        dialogueRunner.AddCommandHandler("GiveSword", GiveSword);
-        dialogueRunner.AddCommandHandler("GiveShield", GiveShield);
-        dialogueRunner.AddCommandHandler("FirstHealthPickup", FirstHealthPickup);
-        dialogueRunner.AddCommandHandler("FirstSnowballPickup", FirstSnowballPickup);
-        if (dialogueRunner != null)
+        if (dialogueRunner != null) {
+            dialogueRunner.AddCommandHandler("GiveSword", GiveSword);
+            dialogueRunner.AddCommandHandler("GiveShield", GiveShield);
+            dialogueRunner.AddCommandHandler("FirstHealthPickup", FirstHealthPickup);
+            dialogueRunner.AddCommandHandler("FirstSnowballPickup", FirstSnowballPickup);
             dialogueRunner.onDialogueComplete.AddListener(OnDialogueComplete);
+        }
+    
 
     }
 
@@ -101,8 +106,14 @@ public class GameEvents : MonoBehaviour
     {
         playerAttack.GotSword();
         itemsHUD.ShowSword();
-    }
 
+        dialogueRunner.VariableStorage.SetValue("$got_sword", true);
+
+        // Change this later to be more specific maybe, since I'll have multiple progress blockers
+        ProgressBlockerTrigger blocker = FindFirstObjectByType<ProgressBlockerTrigger>();
+        blocker.Unlock();
+    }
+    
     public void GiveShield()
     {
         playerShield.GotShield();
