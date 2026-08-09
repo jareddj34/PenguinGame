@@ -19,6 +19,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Dash")]
     [Tooltip("How fast the player moves during a dash.")]
     [SerializeField] private float dashSpeed = 20f;
+    public bool gotDashUpgrade;
+    private Coroutine dashRoutine;
 
     [Tooltip("How long the dash lasts in seconds.")]
     [SerializeField] private float dashDuration = 0.2f;
@@ -86,6 +88,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDisable()
     {
+
+        if (dashRoutine != null)
+        {
+            StopCoroutine(dashRoutine);
+            dashRoutine = null;
+        }
+        isDashing = false;
+
         // Prevents the player drifting when control is restored after dialogue
         moveInput = Vector2.zero;
 
@@ -159,10 +169,10 @@ public class PlayerMovement : MonoBehaviour
         if (!value.isPressed)
             return;
 
-        if (isDashing || dashCooldownTimer > 0f || isSliding || isKnockedBack || isAttacking || isReceivingItem || isFrozen)
+        if (isDashing || dashCooldownTimer > 0f || isSliding || isKnockedBack || isAttacking || isReceivingItem || isFrozen || !gotDashUpgrade)
             return;
 
-        StartCoroutine(DashCoroutine());
+        dashRoutine = StartCoroutine(DashCoroutine());
     }
 
     // -------------------------------------------------------------------------
@@ -257,6 +267,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         isDashing = false;
+        dashRoutine = null;
     }
 
     // -------------------------------------------------------------------------

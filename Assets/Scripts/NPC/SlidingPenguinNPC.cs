@@ -48,6 +48,9 @@ public class SlidingPenguinNPC : InteractableBase
     public AudioClip[] honkClips;
     private AudioClip chosenHonk;
 
+    [Header("DashItem")]
+    public ItemData dashItem;
+
     /// <summary>True while a Yarn dialogue is open.</summary>
     private bool _isInDialogue;
 
@@ -208,8 +211,15 @@ public class SlidingPenguinNPC : InteractableBase
 
     private void OnDialogueComplete()
     {
+        if (!_isInDialogue) return;
+
         GameStateManager.Instance.ExitDialogue();
         animator.SetBool("Talking", false);
+
+        if (!GameEvents.Instance.PlayerHasDashUpgrade)
+        {
+            GameEvents.Instance.ItemPickedUp(dashItem);
+        }
 
         // Unblock the SlideLoop coroutine — it will handle re-orienting and resuming.
         _isInDialogue = false;

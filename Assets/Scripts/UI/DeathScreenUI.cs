@@ -59,7 +59,8 @@ public class DeathScreenUI : MonoBehaviour
                 player.GetComponent<PlayerAttack>(),
                 player.GetComponent<PlayerShield>(),
                 player.GetComponent<PlayerThrow>(),
-                player.GetComponent<PlayerHealth>()
+                player.GetComponent<PlayerHealth>(),
+                player.GetComponent<PlayerMovement>()
             );
 
             Destroy(player.gameObject);

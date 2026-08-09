@@ -41,6 +41,7 @@ public class PlayerThrow : MonoBehaviour
 
     private void OnThrow(InputValue value)
     {
+        
         if (!value.isPressed) return;
         if (Time.time < nextThrowTime) return;
         if (snowballCount <= 0) return;

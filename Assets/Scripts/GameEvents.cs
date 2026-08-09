@@ -53,6 +53,7 @@ public class GameEvents : MonoBehaviour
             dialogueRunner.AddCommandHandler("GiveShield", GiveShield);
             dialogueRunner.AddCommandHandler("FirstHealthPickup", FirstHealthPickup);
             dialogueRunner.AddCommandHandler("FirstSnowballPickup", FirstSnowballPickup);
+            dialogueRunner.AddCommandHandler("GiveDashUpgrade", GiveDashUpgrade);
             dialogueRunner.onDialogueComplete.AddListener(OnDialogueComplete);
         }
     
@@ -71,7 +72,14 @@ public class GameEvents : MonoBehaviour
         AudioManager.Instance.ReduceMusicVolume();
         playerSound.PlayPickupEvent();
         OnItemPickedUp?.Invoke(item);
-        dialogueRunner.StartDialogue(item.yarnNodeName);
+        StartCoroutine(StartItemDialogueNextFrame(item.yarnNodeName));
+        Debug.Log($"Item picked up: {item.itemName}, starting dialogue node: {item.yarnNodeName}");
+    }
+
+    private IEnumerator StartItemDialogueNextFrame(string nodeName)
+    {
+        yield return null; // let the previous dialogue fully finish tearing down
+        dialogueRunner.StartDialogue(nodeName);
     }
 
     public void EndItemGot()
@@ -142,6 +150,15 @@ public class GameEvents : MonoBehaviour
     {
         OnPlayerDied?.Invoke();
         audioManager.PlayGameOverMusic();
+    }
+
+    public bool PlayerHasDashUpgrade => playerMovement != null && playerMovement.gotDashUpgrade;
+    public void GiveDashUpgrade()
+    {
+        // Make sure it's only given once
+        if (playerMovement.gotDashUpgrade) return;
+
+        playerMovement.gotDashUpgrade = true;
     }
 
     public void OnDialogueComplete()

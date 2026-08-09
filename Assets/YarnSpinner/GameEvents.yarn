@@ -26,3 +26,10 @@ You found some snowballs!
 Click F to throw them!
 <<FirstSnowballPickup>>
 ===
+
+title: DashUpgrade
+---
+You learned the dash ability!
+Press SHIFT to dash!
+<<GiveDashUpgrade>>
+===

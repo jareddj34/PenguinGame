@@ -23102,7 +23102,7 @@ Transform:
   m_GameObject: {fileID: 784249374}
   serializedVersion: 2
   m_LocalRotation: {x: 0.51728034, y: 0, z: 0, w: 0.85581607}
-  m_LocalPosition: {x: -126.4, y: 2.1999989, z: 7.49}
+  m_LocalPosition: {x: -125.54, y: 2.1999989, z: 7.04}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -28032,6 +28032,7 @@ MonoBehaviour:
   audioSource: {fileID: 936567155}
   honkClips:
   - {fileID: 8300000, guid: 3601404e1dbeb614791e82439a682f59, type: 3}
+  dashItem: {fileID: 0}
 --- !u!82 &936567155
 AudioSource:
   m_ObjectHideFlags: 0
@@ -32507,7 +32508,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -56623,6 +56624,7 @@ MonoBehaviour:
   audioSource: {fileID: 1927384489}
   honkClips:
   - {fileID: 8300000, guid: 3601404e1dbeb614791e82439a682f59, type: 3}
+  dashItem: {fileID: 11400000, guid: ce203b2b8e251a2498bd4e059efa295c, type: 2}
 --- !u!4 &1928439880 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 166293453922222393, guid: 3de4d23c34546aa49a23f1136aacf389, type: 3}
@@ -59449,7 +59451,7 @@ Transform:
   m_GameObject: {fileID: 2018387292}
   serializedVersion: 2
   m_LocalRotation: {x: 0.51728034, y: 0, z: 0, w: 0.85581607}
-  m_LocalPosition: {x: -126.4, y: 2.1999989, z: 7.49}
+  m_LocalPosition: {x: -125.54, y: 2.1999989, z: 7.04}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -63736,7 +63738,7 @@ PrefabInstance:
       objectReference: {fileID: 8544425138505647735, guid: a248634aaa8f4d34f8ca927167a698aa, type: 3}
     - target: {fileID: 342751049984981104, guid: 58f30529b9f458a4390ec2d7931724ef, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -126.4
+      value: -125.54
       objectReference: {fileID: 0}
     - target: {fileID: 342751049984981104, guid: 58f30529b9f458a4390ec2d7931724ef, type: 3}
       propertyPath: m_LocalPosition.y
@@ -63744,7 +63746,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 342751049984981104, guid: 58f30529b9f458a4390ec2d7931724ef, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 9.33
+      value: 8.88
       objectReference: {fileID: 0}
     - target: {fileID: 342751049984981104, guid: 58f30529b9f458a4390ec2d7931724ef, type: 3}
       propertyPath: m_LocalRotation.w
